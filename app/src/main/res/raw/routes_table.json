@@ -1,0 +1,13 @@
+{
+  "routes":
+  [
+    {
+      "id": "rt01",
+      "name" : "BVBCET",
+      "bus_stop_name" : "KLE",
+      "bus_stop_order" : "1",
+      "lattitude" : "15.3553091",
+      "longitude" : "75.1322022"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "live_tracking":
+  [
+    {
+      "bus_number" : "KA-25-AB-2390",
+      "bus_name" : "KRISHNA",
+      "route_id": "rt01",
+      "rote_name" : "BVBCET",
+      "is_drive_started" : "true",
+      "driver_id" : "",
+      "driver_name" : "",
+      "current_loc" : "",
+      "next_stop_id" : "",
+      "next_stop_name" : "",
+      "direction" : "1",
+      "start_point" : "",
+      "end_point" : ""
+    }
+  ]
+}

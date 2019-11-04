@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".activity.BusStatusActivity"
+    tools:showIn="@layout/app_bar_navigation">
+
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/layout_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/nextStopTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/layout_margin"
+            android:background="@drawable/rouded_rect_pc"
+            android:paddingLeft="@dimen/layout_margin"
+            android:paddingTop="@dimen/layout_padding"
+            android:paddingRight="@dimen/layout_margin"
+            android:paddingBottom="@dimen/layout_padding"
+            android:text="@string/no_trip"
+            android:textColor="#fff" />
+
+
+        <LinearLayout
+            android:id="@+id/BusDistanceLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/layout_margin"
+            android:background="@drawable/rectangle_border_bg"
+            android:orientation="horizontal"
+            android:paddingLeft="@dimen/layout_margin"
+            android:paddingRight="@dimen/layout_margin">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/layout_margin"
+                android:text="Distance :"
+                android:textColor="@color/secondaryTextColor" />
+
+
+            <TextView
+                android:id="@+id/busDistanceTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/layout_padding"
+                android:text="0"
+                android:textColor="@color/secondaryTextColor"
+                android:textFontWeight="500"
+                android:textSize="@dimen/title_ts" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="@dimen/layout_padding"
+                android:text="km"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="@dimen/small_ts" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/speedTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                android:layout_marginRight="@dimen/layout_margin"
+                android:background="@drawable/rectangle_border_bg"
+                android:paddingLeft="@dimen/layout_margin"
+                android:paddingTop="@dimen/layout_padding"
+                android:paddingRight="@dimen/layout_margin"
+                android:paddingBottom="@dimen/layout_padding"
+                android:text="@string/next_stop"
+                android:textColor="@color/secondaryTextColor"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/timerTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                android:background="@drawable/rectangle_border_bg"
+                android:paddingLeft="@dimen/layout_margin"
+                android:paddingTop="@dimen/layout_padding"
+                android:paddingRight="@dimen/layout_margin"
+                android:paddingBottom="@dimen/layout_padding"
+                android:text="@string/next_stop"
+                android:textColor="@color/secondaryTextColor"
+                android:visibility="gone" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/btnLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/layout_padding"
+        android:paddingRight="@dimen/layout_padding">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/startBtn"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:layout_weight="1"
+            android:text="@string/start_journey" />
+
+        <ImageView
+            android:layout_width="5dp"
+            android:layout_height="wrap_content" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/stopBtn"
+            android:layout_width="match_parent"
+            android:layout_height="?actionBarSize"
+            android:layout_weight="1"
+            android:text="@string/end_journey" />
+
+    </LinearLayout>
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_fuel"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:icon="@drawable/ic_fuel"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/fab_margin"
+        android:layout_marginBottom="70dp"/>
+
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/fab_bell"
+        style="@style/Widget.MaterialComponents.ExtendedFloatingActionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:icon="@drawable/ic_stop"
+        android:textColor="@color/black"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="@dimen/fab_margin"
+        android:layout_marginBottom="70dp"/>
+
+
+
+
+
+
+</RelativeLayout>

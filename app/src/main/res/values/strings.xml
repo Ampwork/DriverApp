@@ -1,0 +1,134 @@
+<resources>
+    <string name="app_name">DriverApp</string>
+    <string name="app_title">DriverApp</string>
+
+    <string name="default_notification_channel_id">studentID</string>
+    <string name="fcm_message">Notification</string>
+
+    <string name="ss_title">KLE \nBUS TRANSPORTATION</string>
+
+    <string name="hint_institute_name">Institute Name</string>
+    <string name="hint_phone">Phone number</string>
+    <string name="hint_altphone">Alternative number</string>
+    <string name="hint_dl">Driving Licence Number</string>
+    <string name="hint_pwd">Password</string>
+    <string name="pwd_length">12</string>
+
+    <string name="hint_driver_name">Driver Name</string>
+    <string name="hint_gender">Gender</string>
+    <string name="hint_bloodgp">Blood Group</string>
+
+    <string name="hint_old_pwd">Old Password</string>
+    <string name="hint_new_pwd">New Password</string>
+    <string name="hint_confirm_pwd">Confirm Password</string>
+
+
+    <string name="hint_fuel">Fuel</string>
+    <string name="hint_current_odometer">Current Odometer</string>
+    <string name="hint_previous_odometer">Previous Odometer Reading</string>
+    <string name="hint_bus_reading">Bus Reading</string>
+    <string name="hint_amount">Amount</string>
+
+    <string name="helper_txt_fuel">Fuel in litres</string>
+    <string name="helper_txt_amount">Amount in rupees </string>
+    <string name="error_txt_odometer">Enter odometer reading</string>
+
+    <string name="hint_route_name">Route Name</string>
+    <string name="hint_bus_name">Bus Name</string>
+    <string name="hint_bus_number">Bus Number</string>
+    <string name="hint_trip_type">Trip Type</string>
+    <string name="hint_depart_time">Departure</string>
+
+    <string name="btn_cancel">cancel</string>
+    <string name="btn_start">start</string>
+    <string name="btn_save">save</string>
+
+    <string name="suffix_litre">ltrs</string>
+    <string name="suffix_rupee">\u20B9</string>
+    <string name="suffix_kms">kms</string>
+
+
+    <string name="start_journey">Start Trip</string>
+    <string name="end_journey">Stop Trip</string>
+
+    <string name="helper_pwd_txt">Enter atleast 6 characters</string>
+    <string name="institute_error_text">Select Institute</string>
+    <string name="triptime_error_text">Select Trip Time</string>
+    <string name="triptype_error_text">Select Trip Type</string>
+
+    <!--Login-->
+    <string name="lg_title">Login</string>
+    <string name="username_hint">Username</string>
+    <string name="pwd_hint">Password</string>
+    <string name="lg_loginbtn">Login</string>
+
+
+    <!--Home Screen-->
+    <string name="upcoming_trip">Upcoming Trip</string>
+    <string name="trip_type">Trip type : %s %s</string>
+
+    <!--Select Route-->
+    <string name="sc_driver_name">Driver Name : %s</string>
+
+    <string name="analytics_value">00</string>
+    <string name="km_reading">KM</string>
+    <string name="mileage_reading">KM/L</string>
+    <string name="fuel_reading">L</string>
+
+    <!--Bus Status-->
+    <string name="route_name">Route Name : %s</string>
+    <string name="bus_name">Bus Name : %s ( %s )</string>
+    <string name="starting_point">Start Point : %s</string>
+    <string name="ending_point">End Point : %s</string>
+    <string name="next_stop">Next Stop : %s</string>
+    <string name="ride_status">Your ride is started</string>
+    <string name="no_trip">Trip not started</string>
+
+
+    <string name="pick_up">PICK UP</string>
+    <string name="drop">DROP</string>
+    <string name="pick_up_from">Pick up from </string>
+    <string name="drop_to">Drop to</string>
+
+    <string name="title_activity_login">Login</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+
+
+    <!-- Error strings -->
+    <string name="geofence_not_available">Geofence service is not available now</string>
+    <string name="geofence_too_many_geofences">Your app has registered too many geofences</string>
+    <string name="geofence_too_many_pending_intents">
+        You have provided too many PendingIntents to the addGeofences() call
+    </string>
+    <string name="geofence_transition_invalid_type">
+        Geofence transition error: invalid transition type %1$d
+    </string>
+    <string name="unknown_geofence_error">
+        Unknown error: the Geofence service is not available now
+    </string>
+    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_navigation">NavigationActivity</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="action_sos"><h2><b>sos</b></h2></string>
+
+    <string name="menu_home">Home</string>
+    <string name="menu_notification">Notification</string>
+    <string name="menu_busdetail">Bus Detail</string>
+    <string name="menu_recenttrips">Recent Trips</string>
+    <string name="menu_setting">Settings</string>
+    <string name="menu_logout">Logout</string>
+
+
+</resources>

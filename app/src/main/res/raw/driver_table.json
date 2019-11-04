@@ -1,0 +1,12 @@
+{
+  "drivers":
+  [
+    {
+      "id": "dv01",
+      "name" : "prakash",
+      "username" : "prakash123",
+      "password" : "pk123",
+      "phone_number" : "5656565656"
+    }
+  ]
+}

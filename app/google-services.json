@@ -1,0 +1,56 @@
+{
+  "project_info": {
+    "project_number": "736391005574",
+    "firebase_url": "https://bustrackingapp-e3b51.firebaseio.com",
+    "project_id": "bustrackingapp-e3b51",
+    "storage_bucket": "bustrackingapp-e3b51.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736391005574:android:5491f0a8d0d1045c",
+        "android_client_info": {
+          "package_name": "com.ampwork.driverapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736391005574-ueiqo1slgb90evg0ung086i75t74oh00.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ampwork.driverapp",
+            "certificate_hash": "5e278e449cbeac4824353436ef4c4294fc719907"
+          }
+        },
+        {
+          "client_id": "736391005574-gpdkd6fgagfck928d7thi038lkf5e62d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ampwork.driverapp",
+            "certificate_hash": "9609408fcf0c00e6efed5f48279d8305c5b3325b"
+          }
+        },
+        {
+          "client_id": "736391005574-v34vlc1ed6q8nbb1fp78e2sk3mbrohl5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1lWnHhH1JcvkIIsx_JLYnrlnDdWIW_Jc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736391005574-v34vlc1ed6q8nbb1fp78e2sk3mbrohl5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

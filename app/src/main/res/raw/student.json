@@ -1,0 +1,11 @@
+{
+  "students":
+  [
+    {
+      "id": "st01",
+      "name" : "central_bus_stand",
+      "password" : "15.3553091",
+      "phone_number" : "75.1322022"
+    }
+  ]
+}
