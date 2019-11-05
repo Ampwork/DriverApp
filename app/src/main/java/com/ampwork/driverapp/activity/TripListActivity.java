@@ -29,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class TripListActivity extends AppCompatActivity {
 
@@ -85,6 +86,7 @@ public class TripListActivity extends AppCompatActivity {
                     }
                     if (busLogArrayList.size() > 0) {
                         noDataTv.setVisibility(View.GONE);
+                        Collections.reverse(busLogArrayList);
                         displayList();
                     } else {
                         noDataTv.setVisibility(View.VISIBLE);

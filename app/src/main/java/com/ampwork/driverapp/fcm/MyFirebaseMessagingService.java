@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
@@ -57,20 +58,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
 
-            sendNotification(remoteMessage.getNotification().getBody());
-
+            playNotificationSound();
             PreferencesManager preferencesManager = new PreferencesManager(this);
-            preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED,true);
+            preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
 
-            String message = remoteMessage.getNotification().getBody();
+           /*  String message = remoteMessage.getNotification().getBody();
             String date = AppUtility.getCurrentDateTime();
 
-            DBHelper.init(this);
+           DBHelper.init(this);
             Notification notification = new Notification();
             notification.setMessage(message);
             notification.setDate(date);
 
-            DBHelper.addNotification(notification);
+            DBHelper.addNotification(notification);*/
             Log.d(TAG, "Body: " + remoteMessage.getNotification().getBody());
         }
     }
@@ -133,6 +133,22 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
 
         notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+    }
+
+    // Playing notification sound
+    public void playNotificationSound() {
+
+        //play sound if notification sound is on
+        //  if (myPref.getBooleanValue(IS_NOTIFICATION_SOUND_ON)) {
+        try {
+            //Uri path = Uri.parse("android.resource://" + mContext.getPackageName() + "/raw/notification.mp3");
+            //RingtoneManager.setActualDefaultRingtoneUri(getApplicationContext(), RingtoneManager.TYPE_NOTIFICATION, path);
+            Uri path = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), path);
+            r.play();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }

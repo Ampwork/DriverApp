@@ -55,6 +55,7 @@ import com.ampwork.driverapp.markerhelper.MarkerAnimation;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusStops;
 import com.ampwork.driverapp.model.Driver;
+import com.ampwork.driverapp.model.DriverSosData;
 import com.ampwork.driverapp.model.LiveBusDetail;
 import com.ampwork.driverapp.service.LiveTrackingService;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -94,7 +95,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv,busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
-    private LinearLayout rideStatusLayout, BusDistanceLayout;
+    private LinearLayout rideStatusLayout, busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
     NavigationView navigationView;
 
@@ -234,6 +235,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
+        navigationView.setCheckedItem(0);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -257,13 +259,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         startBtn = findViewById(R.id.startBtn);
         stopBtn = findViewById(R.id.stopBtn);
 
-        BusDistanceLayout = findViewById(R.id.BusDistanceLayout);
+        busDistanceLayout = findViewById(R.id.busDistanceLayout);
 
         // Intialize Data
-      /*  BitmapDrawable bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.logo_white);
-        Bitmap b = bitmapDrawable.getBitmap();
-        Bitmap logo = Bitmap.createScaledBitmap(b, 512, 103, false);
-        imageView.setImageBitmap(logo);*/
         navHeaderTitleTv.setText(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME));
         navHeaderSubTitleTv.setText(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE));
         navHeaderSubTitle2Tv.setText(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
@@ -479,7 +477,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
                         String total_distance = object.get(AppConstant.PREF_STR_TOTAL_DISTANCE).toString();
                         String total_fuel = object.get(AppConstant.PREF_STR_TOTAL_FUEL).toString();
-                        String mileage = String.valueOf(Math.round(((Float.parseFloat(total_distance) / Float.parseFloat(total_fuel))*100.0)/100.0));
+                        String mileage = object.get(AppConstant.PREF_MILEAGE).toString();
+                        //String.valueOf(Math.round(((Float.parseFloat(total_distance) / Float.parseFloat(total_fuel))*100.0)/100.0));
 
                         preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE, total_distance);
                         preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, total_fuel);
@@ -487,7 +486,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                         preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
-
 
                         String route_id = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID);
                         String assigned_route_id = object.get(AppConstant.PREF_ROUTE_ID).toString();
@@ -580,16 +578,19 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void enableSOS() {
+        
         Boolean is_driving = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
-        String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
-        String bus_tracking_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
-        if (is_driving) {
+        Boolean is_sos_pressed = preferencesManager.getBooleanValue(AppConstant.PREF_DRIVER_SOS);
+        final String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+        final String bus_tracking_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
+        if (is_driving && !is_sos_pressed) {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("bus_tracking_tb");
             databaseReference.child(institute_key).child(bus_tracking_key).child(AppConstant.PREF_DRIVER_SOS).setValue(true).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
                     preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, true);
                     Toast.makeText(BusStatusActivity.this, "SOS is successfull..", Toast.LENGTH_SHORT).show();
+                    addSosToLog(institute_key,bus_tracking_key);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -598,6 +599,29 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 }
             });
         }
+    }
+
+    private void addSosToLog(String institute_key, String bus_tracking_key) {
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_SOS_TB);
+        DriverSosData driverSosData = new DriverSosData();
+        driverSosData.setBloodgroup(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_BG));
+        driverSosData.setDriverId(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_ID));
+        driverSosData.setDriverName(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME));
+        driverSosData.setDriverDL(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_DL));
+        driverSosData.setDriverPhone(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_PHONE));
+        driverSosData.setEmergency(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_EMERGENCY_PHONE));
+        driverSosData.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+        driverSosData.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
+        driverSosData.setRouteId(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID));
+        driverSosData.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
+        driverSosData.setLocation(preferencesManager.getStringValue(AppConstant.PREF_BUS_LOCATION));
+        driverSosData.setDateTime(AppUtility.getCurrentDateTime());
+
+        String current_date = AppUtility.getCurrentDate();
+        String key = reference.push().getKey();
+        reference.child(institute_key).child(bus_tracking_key).child(current_date).child("drivers").child(key).setValue(driverSosData);
+
     }
 
     private void startTrip(LiveBusDetail liveBusDetail) {
@@ -824,9 +848,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         String totalFuel = preferencesManager.getStringValue(AppConstant.PREF_TOTAL_FUEL);
         String totalTrips = preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS);
         String tripDistance = preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE);
+        String mileage = preferencesManager.getStringValue(AppConstant.PREF_MILEAGE);
 
         LiveBusDetail liveBusDetail = new LiveBusDetail(busLocation, busName, busNumber, busPath, departureTime, destinationReached, direction, driverId, driverName, driving, endPoint, institute, nextStopName, nextStopOrderId, odometerReading, routeId, routeName, startPoint, trackEnabled, tripCompleted, sos, driverSos, bellCounts,
-                totalDistance, totalFuel, totalTrips, tripDistance);
+                totalDistance, totalFuel, totalTrips, tripDistance,mileage);
 
         return liveBusDetail;
 
@@ -1052,10 +1077,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                                     }
                                 }
                                 mMap.setMyLocationEnabled(true);
-
                                 nextStopTv.setVisibility(View.VISIBLE);
-                                preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED,  0.0f);
-                                preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED,  0.0f);
+                                busDistanceLayout.setVisibility(View.GONE);
+                                speedTV.setVisibility(View.GONE);
                                 String nextTripTime = AppUtility.getNextTripTime(preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME));
                                 nextStopTv.setText("Next trip is at " + nextTripTime + ".");
                                 updateScreenUI(location, null);
@@ -1157,7 +1181,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             // get distance in kilometer.
             float distance = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED) / 1000.00);
             if (distance > 0) {
-                BusDistanceLayout.setVisibility(View.VISIBLE);
+                busDistanceLayout.setVisibility(View.VISIBLE);
                 busDistanceTv.setText(String.format("%.2f", distance));
             }
             float speed = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
@@ -1189,6 +1213,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
               /*  markerOptions1.flat(true);
                 markerOptions1.rotation(busLocation.getBearing());*/
                 markerOptions1.position(bus_location);
+                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
 
 
                 busMarker = mMap.addMarker(markerOptions1);

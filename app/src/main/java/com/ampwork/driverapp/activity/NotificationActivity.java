@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class NotificationActivity extends AppCompatActivity {
     private ArrayList<Notification> notificationArrayList = new ArrayList<>();
@@ -89,6 +90,7 @@ public class NotificationActivity extends AppCompatActivity {
                     }
                     if (notificationArrayList.size() > 0) {
                         noDataTv.setVisibility(View.GONE);
+                        Collections.reverse(notificationArrayList);
                         displayList();
 
                     } else {
@@ -109,6 +111,9 @@ public class NotificationActivity extends AppCompatActivity {
     }
 
     private void displayList() {
+
+        preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED,false);
+
         recyclerView.setVisibility(View.VISIBLE);
         mAdapter = new NotificationsAdapter(NotificationActivity.this, notificationArrayList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
@@ -116,4 +121,5 @@ public class NotificationActivity extends AppCompatActivity {
         recyclerView.addItemDecoration(new EqualSpacingItemDecoration(40));
         recyclerView.setAdapter(mAdapter);
     }
+
 }

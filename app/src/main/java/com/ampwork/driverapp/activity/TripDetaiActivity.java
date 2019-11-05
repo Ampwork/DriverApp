@@ -371,10 +371,10 @@ public class TripDetaiActivity extends AppCompatActivity {
                         total_distance = total_distance + distance;
                     }
 
-                    preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, String.format("%.2f", total_distance));
+                    preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, String.valueOf(total_distance));
                     preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS, String.valueOf(result.size()));
                     totalTripsTv.setText(String.valueOf(result.size()));
-                    tripDistanceTv.setText(String.format("%.2f", total_distance));
+                    tripDistanceTv.setText(String.valueOf(total_distance));
                 } else {
                     totalTripsTv.setText("00");
                     tripDistanceTv.setText("00");

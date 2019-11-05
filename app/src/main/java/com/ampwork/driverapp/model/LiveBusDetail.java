@@ -34,17 +34,13 @@ public class LiveBusDetail implements Parcelable {
     public String totalFuel;
     public String totalTrips;
     public String tripDistance;
-
-
-
-
-
+    public String  mileage;
 
 
     public LiveBusDetail() { }
 
 
-    public LiveBusDetail(String busLocation, String busName, String busNumber, String busPath, String departureTime, Boolean destinationReached, String direction, String driverId, String driverName, Boolean driving, String endPoint, String institute, String nextStopName, String nextStopOrderId, String odometer, String routeId, String routeName, String startPoint, Boolean trackEnabled, Boolean tripCompleted, String sos, Boolean driverSOS, String bellCounts,  String totalDistance, String totalFuel, String totalTrips, String tripDistance) {
+    public LiveBusDetail(String busLocation, String busName, String busNumber, String busPath, String departureTime, Boolean destinationReached, String direction, String driverId, String driverName, Boolean driving, String endPoint, String institute, String nextStopName, String nextStopOrderId, String odometer, String routeId, String routeName, String startPoint, Boolean trackEnabled, Boolean tripCompleted, String sos, Boolean driverSOS, String bellCounts, String totalDistance, String totalFuel, String totalTrips, String tripDistance, String mileage) {
         this.busLocation = busLocation;
         this.busName = busName;
         this.busNumber = busNumber;
@@ -68,11 +64,11 @@ public class LiveBusDetail implements Parcelable {
         this.sos = sos;
         this.driverSOS = driverSOS;
         this.bellCounts = bellCounts;
-
         this.totalDistance = totalDistance;
         this.totalFuel = totalFuel;
         this.totalTrips = totalTrips;
         this.tripDistance = tripDistance;
+        this.mileage = mileage;
     }
 
     protected LiveBusDetail(Parcel in) {
@@ -108,6 +104,44 @@ public class LiveBusDetail implements Parcelable {
         totalFuel = in.readString();
         totalTrips = in.readString();
         tripDistance = in.readString();
+        mileage = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(busLocation);
+        dest.writeString(busName);
+        dest.writeString(busNumber);
+        dest.writeString(busPath);
+        dest.writeString(departureTime);
+        dest.writeByte((byte) (destinationReached == null ? 0 : destinationReached ? 1 : 2));
+        dest.writeString(direction);
+        dest.writeString(driverId);
+        dest.writeString(driverName);
+        dest.writeByte((byte) (driving == null ? 0 : driving ? 1 : 2));
+        dest.writeString(endPoint);
+        dest.writeString(institute);
+        dest.writeString(nextStopName);
+        dest.writeString(nextStopOrderId);
+        dest.writeString(odometer);
+        dest.writeString(routeId);
+        dest.writeString(routeName);
+        dest.writeString(startPoint);
+        dest.writeByte((byte) (trackEnabled == null ? 0 : trackEnabled ? 1 : 2));
+        dest.writeByte((byte) (tripCompleted == null ? 0 : tripCompleted ? 1 : 2));
+        dest.writeString(sos);
+        dest.writeByte((byte) (driverSOS == null ? 0 : driverSOS ? 1 : 2));
+        dest.writeString(bellCounts);
+        dest.writeString(totalDistance);
+        dest.writeString(totalFuel);
+        dest.writeString(totalTrips);
+        dest.writeString(tripDistance);
+        dest.writeString(mileage);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Creator<LiveBusDetail> CREATOR = new Creator<LiveBusDetail>() {
@@ -339,6 +373,14 @@ public class LiveBusDetail implements Parcelable {
         this.tripDistance = tripDistance;
     }
 
+    public String getMileage() {
+        return mileage;
+    }
+
+    public void setMileage(String mileage) {
+        this.mileage = mileage;
+    }
+
     public static HashMap<String,Object> getLocationUpdateObj(String busLocation, String busPath, Boolean destinationReached, String direction, Boolean driving, String nextStopName, String nextStopOrderId, Boolean trackEnabled, Boolean tripCompleted){
 
         HashMap<String,Object> objectHashMap = new HashMap<>();
@@ -403,39 +445,5 @@ public class LiveBusDetail implements Parcelable {
     }
 
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(busLocation);
-        dest.writeString(busName);
-        dest.writeString(busNumber);
-        dest.writeString(busPath);
-        dest.writeString(departureTime);
-        dest.writeByte((byte) (destinationReached == null ? 0 : destinationReached ? 1 : 2));
-        dest.writeString(direction);
-        dest.writeString(driverId);
-        dest.writeString(driverName);
-        dest.writeByte((byte) (driving == null ? 0 : driving ? 1 : 2));
-        dest.writeString(endPoint);
-        dest.writeString(institute);
-        dest.writeString(nextStopName);
-        dest.writeString(nextStopOrderId);
-        dest.writeString(odometer);
-        dest.writeString(routeId);
-        dest.writeString(routeName);
-        dest.writeString(startPoint);
-        dest.writeByte((byte) (trackEnabled == null ? 0 : trackEnabled ? 1 : 2));
-        dest.writeByte((byte) (tripCompleted == null ? 0 : tripCompleted ? 1 : 2));
-        dest.writeString(sos);
-        dest.writeByte((byte) (driverSOS == null ? 0 : driverSOS ? 1 : 2));
-        dest.writeString(bellCounts);
-        dest.writeString(totalDistance);
-        dest.writeString(totalFuel);
-        dest.writeString(totalTrips);
-        dest.writeString(tripDistance);
-    }
 }

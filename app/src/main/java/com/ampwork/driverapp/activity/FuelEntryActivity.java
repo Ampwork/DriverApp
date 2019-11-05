@@ -50,9 +50,9 @@ public class FuelEntryActivity extends AppCompatActivity {
 
     private String driver_id, driver_name, bus_name, bus_number, fuel_qty, amount, date, previous_reading,
             current_odometer, initial_odometer, total_distance;
-    String pref_total_fuel, pref_total_distance, institute_key,bus_key;
+    String pref_total_fuel, pref_total_distance, institute_key, bus_key;
     private Fuel previousFuelData, currentFuelData;
-    int diff = 0;
+    int diff = 0, initial_distance = 0, total_fuel = 0;
 
 
     PreferencesManager preferencesManager;
@@ -153,7 +153,6 @@ public class FuelEntryActivity extends AppCompatActivity {
                     saveBtn.setEnabled(false);
 
 
-
                     new android.os.Handler().postDelayed(
                             new Runnable() {
                                 public void run() {
@@ -173,7 +172,7 @@ public class FuelEntryActivity extends AppCompatActivity {
             }
         });
 
-        getLastFuelReadingCOpy();
+        getLastFuelReading();
 
     }
 
@@ -227,69 +226,38 @@ public class FuelEntryActivity extends AppCompatActivity {
 
     private void getLastFuelReading() {
 
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("fuel_tb");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_FUEL_TB);
 
-        databaseReference.child(institute_key).orderByChild(AppConstant.PREF_BUS_NUMBER).equalTo(bus_number).limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.child(institute_key).child(bus_key).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int total_fuel = 0;
-                int mileage = 0;
                 int i = 0;
-                int distance = 0;
+
                 if (dataSnapshot.getChildrenCount() > 0) {
 
-                    HashMap<String, List<HashMap<String, BusLog>>> result = (HashMap<String, List<HashMap<String, BusLog>>>) dataSnapshot.getValue();
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
 
-                    if (result != null) {
-                        //  Map<String, Fuel> object = result.get(i);
-                        Set<String> keyset = result.keySet();
-                        String key = null;
-                        for (String keyName : keyset) {
-                            key = keyName;
-                            Map<String, Object> fuelData = (Map<String, Object>) result.get(key);
+                        Fuel fuelData = snapshot.getValue(Fuel.class);
 
-                            int fuel_qty = Integer.parseInt(fuelData.get("fuel").toString());
-                            total_fuel = total_fuel + fuel_qty;
+                        int fuel_qty = Integer.parseInt(fuelData.getFuel());
+                        total_fuel = total_fuel + fuel_qty;
 
-                            int current_reading = Integer.parseInt(fuelData.get("odometer").toString());
-                            int previous_reading = Integer.parseInt(fuelData.get("previousReading").toString());
-                            if (current_reading >= previous_reading) {
-                                distance = distance + (current_reading - previous_reading);
-
-                            } else {
-                                distance = distance + current_reading;
-                            }
-
-                            if (i == result.size() - 1) {
-                                if (fuelData != null) {
-
-                                    previousFuelData = new Fuel();
-                                    previousFuelData.setBusReading(fuelData.get("busReading").toString());
-                                    previousFuelData.setOdometer(fuelData.get("odometer").toString());
-                                    previousFuelData.setPreviousReading(fuelData.get("previousReading").toString());
-
-                                    previousOdometerEdt.setText(previousFuelData.getOdometer());
-
-                                    preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, fuelData.get("busReading").toString());
-
-                                }
-                            }
-                            // increment i
-                            i = i + 1;
+                        if (initial_distance == 0) {
+                            int bus_reading = Integer.parseInt(fuelData.getBusReading());
+                            initial_distance = bus_reading;
                         }
 
+                        if (i == dataSnapshot.getChildrenCount() - 1) {
+                            if (fuelData != null) {
+                                previousFuelData = fuelData;
+                                previousOdometerEdt.setText(previousFuelData.getOdometer());
 
-                        mileage = distance / total_fuel;
-                        fuelReadingTv.setText(String.valueOf(total_fuel));
-                        preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, String.valueOf(total_fuel));
-                        if (mileage > 0) {
-                            preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, String.valueOf(mileage));
-                            mileageTv.setText(String.valueOf(mileage));
-                        } else {
-                            preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "00");
-                            mileageTv.setText("00");
+                                preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, fuelData.getBusReading());
+
+                            }
                         }
-
+                        // increment i
+                        i = i + 1;
                     }
 
                 } else {
@@ -332,13 +300,12 @@ public class FuelEntryActivity extends AppCompatActivity {
         busNumberEdt.setText(bus_number);
 
         String total_fuel = preferencesManager.getStringValue(AppConstant.PREF_TOTAL_FUEL);
-        String total_distance = preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE);
-        double mileage = Math.round(((Double.parseDouble(total_distance) / Double.parseDouble(total_fuel))*100.0)/100.0);
-        if(Integer.parseInt(total_fuel)>0){
+        //String total_distance = preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE);
+        String mileage = preferencesManager.getStringValue(AppConstant.PREF_MILEAGE);
+
+        mileageTv.setText(mileage);
+        if (Double.parseDouble(total_fuel) > 0) {
             fuelReadingTv.setText(total_fuel);
-        }
-        if(mileage>0){
-            mileageTv.setText(String.format("%.2f", mileage));
         }
 
 
@@ -382,7 +349,7 @@ public class FuelEntryActivity extends AppCompatActivity {
             saveCurrentFuelEntry();
         } else {
 
-            MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this,R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog);
+            MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog);
             materialAlertDialogBuilder.setTitle("Current reading is less than previous reading. \n Are you sure to proceed next ?");
             materialAlertDialogBuilder.setCancelable(false);
             materialAlertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -419,7 +386,7 @@ public class FuelEntryActivity extends AppCompatActivity {
 
             currentFuelData = new Fuel(amount, bus_name, bus_number, total_distance, date, driver_id, driver_name, fuel_qty, current_odometer, previous_reading);
 
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("fuel_tb" );
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("fuel_tb");
             String fuel_key = databaseReference.push().getKey();
             databaseReference.child(institute_key).child(bus_key).child(fuel_key).setValue(currentFuelData).addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
@@ -441,23 +408,21 @@ public class FuelEntryActivity extends AppCompatActivity {
             progressDialog.dismiss();
             saveBtn.setEnabled(true);
             odometerEdtLayout.setError("Enter valid odometer.");
-           // Toast.makeText(this, "Enter valid odometer", Toast.LENGTH_SHORT).show();
+            // Toast.makeText(this, "Enter valid odometer", Toast.LENGTH_SHORT).show();
         }
 
     }
 
     private void callNextScreen() {
-        //reset analytics.
-        preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, null);
-        preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, null);
 
-        pref_total_fuel = String.valueOf(Integer.parseInt(pref_total_fuel) + Integer.parseInt(fuel_qty));
-        pref_total_distance = total_distance;// String.valueOf(Integer.parseInt(pref_total_distance) + diff);
-        String mileage = String.valueOf(Double.parseDouble(pref_total_distance)/Double.parseDouble(pref_total_fuel));
 
+        double mileage = Math.round((((Double.parseDouble(total_distance) - initial_distance) / total_fuel) * 100.0) / 100.0);
+
+        pref_total_fuel = String.valueOf(total_fuel + Integer.parseInt(fuel_qty));
+        pref_total_distance = total_distance;
 
         preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, pref_total_fuel);
-        preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, mileage);
+        preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, String.valueOf(mileage));
         preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE, pref_total_distance);
         preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, current_odometer);
 
@@ -471,7 +436,7 @@ public class FuelEntryActivity extends AppCompatActivity {
             Map<String, Object> objectMap = new HashMap<>();
             objectMap.put(AppConstant.PREF_STR_TOTAL_FUEL, pref_total_fuel);
             objectMap.put(AppConstant.PREF_STR_TOTAL_DISTANCE, pref_total_distance);
-            objectMap.put(AppConstant.PREF_STR_CURRENT_ODOMETER, current_odometer);
+            objectMap.put(AppConstant.PREF_MILEAGE, String.valueOf(mileage));
 
             databaseReference.child(institute_key).child(bus_key).updateChildren(objectMap);
 
@@ -482,7 +447,6 @@ public class FuelEntryActivity extends AppCompatActivity {
         onBackPressed();
 
     }
-
 
 
 }

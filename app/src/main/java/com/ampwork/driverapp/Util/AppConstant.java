@@ -15,6 +15,7 @@ public class AppConstant {
 
     public static String PREF_NOTIFICATION_ARRIVED = "notificationarrived";// Boolean
 
+
     public static String PREF_DRIVER_KEY = "driverkey";
     public static String PREF_DRIVER_BG = "bloodgroup";
     public static String PREF_DRIVER_DL = "driverDL";
@@ -85,6 +86,9 @@ public class AppConstant {
     public static String PREF_STR_BUS_LOGS_TB = "bus_logs_tb";
     public static String PREF_STR_BUSTRACKING_TB = "bus_tracking_tb";
     public static String PREF_STR_NOTIFICATION_TB = "notification_tb";
+    public static String PREF_STR_SOS_TB = "sos_tb";
+    public static String PREF_STR_FUEL_TB = "fuel_tb";
+
     public static String PREF_STR_FCMTOKEN = "fcmToken";
     public static String PREF_STR_LOGGEDIN = "loggedIn";
 

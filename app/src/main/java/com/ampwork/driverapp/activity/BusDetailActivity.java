@@ -3,6 +3,8 @@ package com.ampwork.driverapp.activity;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -48,8 +50,12 @@ public class BusDetailActivity extends AppCompatActivity {
         String str_bus_timings = preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME);
         String bus_timing = "";
         String[] array = str_bus_timings.split(",");
+
+        SpannableString str_separator = new SpannableString(", ");
+        str_separator.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.app_blue)), 0, str_separator.length(), 0);
+
         for(String string : array){
-            bus_timing = bus_timing + string + ", ";
+            bus_timing = bus_timing + string + str_separator;
         }
         bus_timing.trim();
         str_bus_timings = bus_timing.substring(0, bus_timing.length() - 2);

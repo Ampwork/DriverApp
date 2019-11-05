@@ -8,6 +8,7 @@
     app:cardCornerRadius="@dimen/card_radius">
 
     <RelativeLayout
+        android:id="@+id/mainLayout"
         android:layout_margin="@dimen/layout_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
