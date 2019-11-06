@@ -4,6 +4,7 @@ public class DriverSosData {
 
     public String bloodgroup;
     public String driverDL;
+    public String driverKey;
     public String driverId;
     public String driverName;
     public String driverPhone;
@@ -18,19 +19,13 @@ public class DriverSosData {
     public DriverSosData() {
     }
 
-    public DriverSosData(String bloodgroup, String driverDL, String driverId, String driverName, String driverPhone, String emergency, String busName, String busNumber, String routeId, String routeName, String location, String dateTime) {
-        this.bloodgroup = bloodgroup;
-        this.driverDL = driverDL;
-        this.driverId = driverId;
-        this.driverName = driverName;
-        this.driverPhone = driverPhone;
-        this.emergency = emergency;
-        this.busName = busName;
-        this.busNumber = busNumber;
-        this.routeId = routeId;
-        this.routeName = routeName;
-        this.location = location;
-        this.dateTime = dateTime;
+
+    public String getDriverKey() {
+        return driverKey;
+    }
+
+    public void setDriverKey(String driverKey) {
+        this.driverKey = driverKey;
     }
 
     public String getBloodgroup() {

@@ -374,6 +374,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void showBusStatus() {
+
+        invalidateOptionsMenu();
+
         Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
         Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
 
@@ -553,9 +556,15 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.navigation, menu);
 
+        Boolean isSosPressed = preferencesManager.getBooleanValue(AppConstant.PREF_DRIVER_SOS);
         MenuItem item = menu.getItem(0);
         SpannableString s = new SpannableString(getResources().getString(R.string.action_sos));
-        s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondaryColor)), 0, s.length(), 0);
+        if(isSosPressed){
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.error_color)), 0, s.length(), 0);
+        }else {
+            s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondaryColor)), 0, s.length(), 0);
+        }
+
         item.setTitle(s);
 
         return true;
@@ -589,6 +598,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 @Override
                 public void onSuccess(Void aVoid) {
                     preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, true);
+                    invalidateOptionsMenu();
                     Toast.makeText(BusStatusActivity.this, "SOS is successfull..", Toast.LENGTH_SHORT).show();
                     addSosToLog(institute_key,bus_tracking_key);
                 }
@@ -607,6 +617,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         DriverSosData driverSosData = new DriverSosData();
         driverSosData.setBloodgroup(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_BG));
         driverSosData.setDriverId(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_ID));
+        driverSosData.setDriverKey(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY));
         driverSosData.setDriverName(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME));
         driverSosData.setDriverDL(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_DL));
         driverSosData.setDriverPhone(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_PHONE));
@@ -675,6 +686,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     progressDialog.dismiss();
                     preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, false);
                     preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, false);
+
+                    preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
 
                     preferencesManager.setStringValue(AppConstant.PREF_BUS_PATH, "");
                     preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, "");
@@ -1081,7 +1094,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                                 busDistanceLayout.setVisibility(View.GONE);
                                 speedTV.setVisibility(View.GONE);
                                 String nextTripTime = AppUtility.getNextTripTime(preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME));
-                                nextStopTv.setText("Next trip is at " + nextTripTime + ".");
+                                nextStopTv.setText(/*"Route Name : "+ preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME)+".\n*/"Next trip is at " + nextTripTime + ".");
                                 updateScreenUI(location, null);
                             }
 
@@ -1210,10 +1223,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 Bitmap b = bitmapDrawable.getBitmap();
                 Bitmap smallCar = Bitmap.createScaledBitmap(b, 84, 96, false);
                 markerOptions1.icon(BitmapDescriptorFactory.fromBitmap(smallCar));
-              /*  markerOptions1.flat(true);
-                markerOptions1.rotation(busLocation.getBearing());*/
                 markerOptions1.position(bus_location);
-                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME )+ " - " +
+                        preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
 
 
                 busMarker = mMap.addMarker(markerOptions1);
