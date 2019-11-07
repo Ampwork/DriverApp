@@ -101,6 +101,10 @@
     <string name="login_failed">"Login failed"</string>
 
 
+    <!--Settings-->
+    <string name="user_profile">Profile</string>
+    <string name="change_pwd">Change Password</string>
+
     <!-- Error strings -->
     <string name="geofence_not_available">Geofence service is not available now</string>
     <string name="geofence_too_many_geofences">Your app has registered too many geofences</string>

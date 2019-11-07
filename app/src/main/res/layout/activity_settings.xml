@@ -39,36 +39,42 @@
         android:orientation="vertical"
         android:padding="@dimen/layout_margin">
 
+
         <TextView
             android:id="@+id/profileTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/layout_margin"
-            android:text="Profile"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title_ts" />
+            android:text="@string/user_profile"
+            android:textColor="@color/secondaryTextColor"
+            android:textFontWeight="300"
+            android:textSize="@dimen/subtitle_ts" />
+
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:alpha="0.2"
-            android:background="@color/primaryColor" />
+            android:background="@color/app_blue"></View>
+
 
         <TextView
             android:id="@+id/changePwdTv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="@dimen/layout_margin"
-            android:text="Change Password"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title_ts" />
+            android:text="@string/change_pwd"
+            android:textColor="@color/secondaryTextColor"
+            android:textFontWeight="300"
+            android:textSize="@dimen/subtitle_ts" />
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:alpha="0.2"
-            android:background="@color/primaryColor" />
+            android:background="@color/app_blue"></View>
 
     </LinearLayout>
+
 
 </LinearLayout>

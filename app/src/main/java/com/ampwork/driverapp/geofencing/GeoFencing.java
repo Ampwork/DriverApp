@@ -30,7 +30,7 @@ import java.util.Map;
 public class GeoFencing {
     // Constants
     public static final String TAG = "Geofencing";
-    private static final float GEOFENCE_RADIUS = 100.0f;
+    private static final float GEOFENCE_RADIUS = 50.0f;
     private static final long GEOFENCE_TIMEOUT = Geofence.NEVER_EXPIRE;//24 * 60 * 60 * 1000; // 24 hours
 
     private GeofencingClient geofencingClient;

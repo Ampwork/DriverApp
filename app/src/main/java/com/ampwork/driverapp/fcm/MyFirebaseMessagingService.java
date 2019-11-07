@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
@@ -59,19 +60,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
 
             playNotificationSound();
-            PreferencesManager preferencesManager = new PreferencesManager(this);
-            preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
+            Intent notificationAlertIntent = new Intent(AppConstant.STR_NOTIFICATION_FILTER);
+            LocalBroadcastManager.getInstance(MyFirebaseMessagingService.this).sendBroadcast(notificationAlertIntent);
 
-           /*  String message = remoteMessage.getNotification().getBody();
-            String date = AppUtility.getCurrentDateTime();
-
-           DBHelper.init(this);
-            Notification notification = new Notification();
-            notification.setMessage(message);
-            notification.setDate(date);
-
-            DBHelper.addNotification(notification);*/
-            Log.d(TAG, "Body: " + remoteMessage.getNotification().getBody());
         }
     }
 

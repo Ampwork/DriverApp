@@ -102,5 +102,6 @@ public class AppConstant {
 
     public static String STR_LOCATION_FILTER= "com.ampwork.updatebusstop";
     public static String STR_GEOFENCE_FILTER= "com.ampwork.receiver.geofence";
+    public static String STR_NOTIFICATION_FILTER= "com.ampwork.notification";
 
 }

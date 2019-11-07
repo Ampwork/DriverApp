@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.location.Location;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -33,6 +35,7 @@ import android.os.Handler;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,6 +49,7 @@ import android.widget.Toast;
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.AppUtility;
+import com.ampwork.driverapp.Util.BadgeDrawerToggle;
 import com.ampwork.driverapp.Util.CustomInfoWindow;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.database.DBHelper;
@@ -98,6 +102,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     private LinearLayout rideStatusLayout, busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
     NavigationView navigationView;
+    BadgeDrawerToggle badgeDrawerToggle;
+    TextView notificationActionCount;
 
     PreferencesManager preferencesManager;
     ArrayList<BusStops> busStopsArrayList = new ArrayList<BusStops>();
@@ -178,6 +184,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     } else {
                         updateScreenUI(null, null);
                     }
+                } else if (intent.getAction().equalsIgnoreCase(AppConstant.STR_NOTIFICATION_FILTER)){
+                    preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
+                    showNotificationBadge();
+
                 }
             }
         };
@@ -230,13 +240,28 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.nav_view);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        badgeDrawerToggle = new BadgeDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(badgeDrawerToggle);
+        badgeDrawerToggle.setBadgeEnabled(false);
+        badgeDrawerToggle.syncState();
+       /* ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
-        toggle.syncState();
-        navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(0);
+        toggle.syncState();*/
 
+        notificationActionCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().findItem(R.id.nav_notification));
+        notificationActionCount.setGravity(Gravity.CENTER_VERTICAL);
+        notificationActionCount.setTypeface(null, Typeface.BOLD);
+        notificationActionCount.setTextColor(getResources().getColor(R.color.error_color));
+        notificationActionCount.setText("");
+
+        if (preferencesManager.getBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED)) {
+            showNotificationBadge();
+        }
+
+
+
+        navigationView.setNavigationItemSelectedListener(this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
 
@@ -519,6 +544,17 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
+    private void showNotificationBadge() {
+        badgeDrawerToggle.setBadgeEnabled(true);
+        notificationActionCount.setText("1+");
+    }
+
+    private void hideNotificationBadge() {
+        preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, false);
+        badgeDrawerToggle.setBadgeEnabled(false);
+        notificationActionCount.setText("");
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -526,12 +562,13 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
         intentFilter.addAction(AppConstant.STR_GEOFENCE_FILTER);
+        intentFilter.addAction(AppConstant.STR_NOTIFICATION_FILTER);
 
         LocalBroadcastManager.getInstance(BusStatusActivity.this).registerReceiver(mBroadcastReceiver, intentFilter);
         Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
         Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
 
-        navigationView.setCheckedItem(0);
+        navigationView.getMenu().getItem(0).setChecked(true);
 
         if (is_drive_started && start_btn_activated) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -1366,6 +1403,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         if (id == R.id.nav_home) {
             // Handle the camera action
         } else if (id == R.id.nav_notification) {
+            hideNotificationBadge();
             Intent notificationIntent = new Intent(BusStatusActivity.this,NotificationActivity.class);
             startActivity(notificationIntent);
 

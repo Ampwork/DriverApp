@@ -57,6 +57,9 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
     LocationRequest locationRequest;
     PreferencesManager preferencesManager;
 
+    private LocationCallback locationCallback;
+
+
     private ArrayList<BusStops> busStopsArrayList = new ArrayList<BusStops>();
     /**
      * The desired interval for location updates. Inexact. Updates may be more or less frequent.
@@ -82,6 +85,61 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
     public void onCreate() {
         super.onCreate();
         preferencesManager = new PreferencesManager(this);
+
+        locationCallback =  new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                Location location = locationResult.getLastLocation();
+                if (location != null) {
+
+                    String current_loc = AppUtility.locationToStr(location);
+                    preferencesManager.setStringValue(AppConstant.PREF_BUS_LOCATION, current_loc);
+
+                    String bus_full_path = preferencesManager.getStringValue(AppConstant.PREF_BUS_FULL_PATH);
+                    if (!bus_full_path.contains(current_loc)) {
+                        bus_full_path = bus_full_path + ":" + current_loc;
+                        preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, bus_full_path);
+                    }
+
+
+                    /*Calculate Bus Speed*/
+                    float speed = 0;
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        speed = location.getSpeedAccuracyMetersPerSecond() * 18/5 ;
+                    }else {
+                        speed = location.getSpeed() * 18/5;
+                    }
+                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED,speed);
+                    Log.d(TAG, "Speed: " + speed);
+
+
+                    /*Calculate Bus Travelled Distance meters*/
+                    if(bus_full_path.contains(":")){
+                        String[] path = bus_full_path.split(":");
+                        if(path.length>2){
+                            /*Calculate Bus Travelled  meters*/
+                            float distance = preferencesManager.getFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED);
+                            //String strLastLoc = preferencesManager.getStringValue(AppConstant.PREF_BUS_LAST_LOCATION);
+                            String strLastLoc = path[path.length-2];
+                            if(strLastLoc!=null && strLastLoc.trim().length()>0){
+                                Location last_location = AppUtility.strToLocation(strLastLoc);
+                                distance =  (distance + last_location.distanceTo(location));
+                            }
+                            Log.d(TAG, "Distance: " + distance);
+
+                            if(distance>0){
+                                preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED,distance);
+                            }
+                        }
+                    }
+                    Log.d(TAG, "onLocationResult: " + location);
+                    //Save the location data to the database//
+                    UpdateDatabase(location);
+
+                }
+            }
+        };
+
         buildNotification();
         requestLocationUpdates();
     }
@@ -204,59 +262,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         if (permission == PackageManager.PERMISSION_GRANTED) {
 
             //...then request location updates//
-            fusedLocationProviderClient.requestLocationUpdates(locationRequest, new LocationCallback() {
-                @Override
-                public void onLocationResult(LocationResult locationResult) {
-                    Location location = locationResult.getLastLocation();
-                    if (location != null) {
-
-                        String current_loc = AppUtility.locationToStr(location);
-                        preferencesManager.setStringValue(AppConstant.PREF_BUS_LOCATION, current_loc);
-
-                        String bus_full_path = preferencesManager.getStringValue(AppConstant.PREF_BUS_FULL_PATH);
-                        if (!bus_full_path.contains(current_loc)) {
-                            bus_full_path = bus_full_path + ":" + current_loc;
-                            preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, bus_full_path);
-                        }
-
-
-                        /*Calculate Bus Speed*/
-                        float speed = 0;
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            speed = location.getSpeedAccuracyMetersPerSecond() * 18/5 ;
-                        }else {
-                            speed = location.getSpeed() * 18/5;
-                        }
-                        preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED,speed);
-                        Log.d(TAG, "Speed: " + speed);
-
-
-                        /*Calculate Bus Travelled Distance meters*/
-                        if(bus_full_path.contains(":")){
-                            String[] path = bus_full_path.split(":");
-                            if(path.length>2){
-                                /*Calculate Bus Travelled  meters*/
-                                float distance = preferencesManager.getFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED);
-                                //String strLastLoc = preferencesManager.getStringValue(AppConstant.PREF_BUS_LAST_LOCATION);
-                                String strLastLoc = path[path.length-2];
-                                if(strLastLoc!=null && strLastLoc.trim().length()>0){
-                                    Location last_location = AppUtility.strToLocation(strLastLoc);
-                                    distance =  (distance + last_location.distanceTo(location));
-                                }
-                                Log.d(TAG, "Distance: " + distance);
-
-                                if(distance>0){
-                                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED,distance);
-                                }
-                            }
-                        }
-                        Log.d(TAG, "onLocationResult: " + location);
-                        //Save the location data to the database//
-                        UpdateDatabase(location);
-
-                    }
-                }
-            }, null);
+            fusedLocationProviderClient.requestLocationUpdates(locationRequest,locationCallback, null);
         }
 
     }
@@ -366,5 +372,11 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
     public void onDestroy() {
         super.onDestroy();
         unregisterReceiver(stopReceiver);
+        stopLocationUpdates();
+
+    }
+
+    private void stopLocationUpdates() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
 }
