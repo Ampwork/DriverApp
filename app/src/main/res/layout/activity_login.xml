@@ -71,12 +71,13 @@
 
                     <AutoCompleteTextView
                         android:id="@+id/instituteAutoComTv"
-                        android:maxLines="1"
-                        android:completionThreshold="2"
-                        android:textColor="@color/secondaryTextColor"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        />
+                        android:completionThreshold="2"
+                        android:ellipsize="start"
+                        android:imeOptions="actionDone"
+                        android:textColor="@color/secondaryTextColor"
+                        android:singleLine="true" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 

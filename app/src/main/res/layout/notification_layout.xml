@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -18,7 +19,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginRight="@dimen/layout_margin"
-            android:src="@drawable/bus_marker"/>
+            android:src="@drawable/menu_notifications"/>
 
         <LinearLayout
             android:layout_toRightOf="@id/imageView"
@@ -26,22 +27,38 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/messageTv"
-            android:layout_alignParentRight="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:text="Notification"/>
+            <TextView
+                android:id="@+id/messageTv"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:text="Notification"/>
 
-        <TextView
-            android:id="@+id/dateTv"
-            android:layout_marginTop="@dimen/layout_padding"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Notification" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_padding">
+
+                <TextView
+                    android:id="@+id/dateTv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="day" />
+
+                <TextView
+                    android:id="@+id/timeTv"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    tools:text="time" />
+
+
+
+            </RelativeLayout>
+
 
 
         </LinearLayout>

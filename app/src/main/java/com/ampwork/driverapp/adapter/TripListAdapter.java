@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
+import com.ampwork.driverapp.Util.AppUtility;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusLog;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -35,33 +36,35 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.trip_list_layout,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.trip_list_layout, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         return viewHolder;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-       final BusLog busLog = busLogArrayList.get(position);
+        final BusLog busLog = busLogArrayList.get(position);
 
-       String trip_type = AppConstant.PREF_STR_DROP ;
-
-       if(busLog.getDirection().equalsIgnoreCase("1")){
-           trip_type = AppConstant.PREF_STR_PICKUP;
+        String trip_type = AppConstant.PREF_STR_DROP;
+        if (busLog.getDirection().equalsIgnoreCase("1")) {
+            trip_type = AppConstant.PREF_STR_PICKUP;
         }
-       holder.routeNameTv.setText(busLog.getRouteName() + " - " +  trip_type);
-       holder.tripDistanceTv.setText("Distance : " + busLog.getTripDistance() + " km");
-       holder.tripDurationTv.setText("Duration : " + busLog.getTripDuration() + " min");
-       holder.tripDateTv.setText(busLog.getDate());
 
-       holder.mainLayout.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View view) {
-               showLogDetail(busLog);
-           }
-       });
+        String[] strings = busLog.getArrivedTime().split(" ");
+        final String arrivedDay = AppUtility.getNotificationDay(strings[0]);
+        final String arrivedTime = strings[1];
 
+        holder.routeNameTv.setText(busLog.getRouteName() + " - " + trip_type);
+        holder.tripDistanceTv.setText("Distance : " + busLog.getTripDistance() + " km");
+        holder.tripDurationTv.setText("Duration : " + busLog.getTripDuration() + " min");
+        holder.tripDateTv.setText(arrivedDay + " " + arrivedTime);
 
+        holder.mainLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showLogDetail(busLog);
+            }
+        });
 
 
     }
@@ -71,9 +74,9 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
         return busLogArrayList.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
-        TextView routeNameTv,tripDistanceTv, tripDurationTv,tripDateTv;
+        TextView routeNameTv, tripDistanceTv, tripDurationTv, tripDateTv;
         LinearLayout mainLayout;
 
         public ViewHolder(@NonNull View itemView) {

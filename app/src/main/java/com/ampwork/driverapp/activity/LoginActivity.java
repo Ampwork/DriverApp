@@ -220,13 +220,24 @@ public class LoginActivity extends AppCompatActivity {
 
     private void callLoginApi() {
 
-        int institute_index = instituteAdapter.getPosition(instituteAutoComTv.getText().toString());
-        final String institute_key = instituteDetailArrayList.get(institute_index).getKey();
+        String institute_name = instituteAutoComTv.getText().toString();
+        String institute_key = "";
+        String institute_type ;
+
+        for (int i = 0; i < instituteDetailArrayList.size(); i++) {
+            InstituteDetail instituteDetail = instituteDetailArrayList.get(i);
+            if (instituteDetail.getName().equalsIgnoreCase(institute_name.toString())) {
+                institute_key = instituteDetail.getKey();
+                institute_type = instituteDetail.getType();
+            }
+        }
+
         String phone = phoneEdt.getText().toString();
         final String password = passwordEdt.getText().toString();
 
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("drivers_tb/" + institute_key);
 
+        final String finalInstitute_key = institute_key;
         databaseReference.orderByChild("driverPhone").equalTo(phone).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -247,7 +258,7 @@ public class LoginActivity extends AppCompatActivity {
                         if((boolean)object.get(AppConstant.PREF_STR_LOGGEDIN)) {
                             Toast.makeText(LoginActivity.this, "User is already loggedin..", Toast.LENGTH_SHORT).show();
                         }else {
-                            saveData(object, driverKey, institute_key);
+                            saveData(object, driverKey, finalInstitute_key);
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, "Login Failed", Toast.LENGTH_SHORT).show();

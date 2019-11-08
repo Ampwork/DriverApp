@@ -18,6 +18,7 @@ import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.CustomItemDecorator;
 import com.ampwork.driverapp.Util.EqualSpacingItemDecoration;
 import com.ampwork.driverapp.Util.PreferencesManager;
+import com.ampwork.driverapp.Util.SimpleLineDividerItemDecoration;
 import com.ampwork.driverapp.adapter.NotificationsAdapter;
 import com.ampwork.driverapp.adapter.TripListAdapter;
 import com.ampwork.driverapp.model.BusLog;
@@ -111,7 +112,8 @@ public class TripListActivity extends AppCompatActivity {
         mAdapter = new TripListAdapter(this, busLogArrayList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.addItemDecoration(new EqualSpacingItemDecoration(40));
+        //recyclerView.addItemDecoration(new EqualSpacingItemDecoration(20));
+        recyclerView.addItemDecoration(new SimpleLineDividerItemDecoration(this));
         recyclerView.setAdapter(mAdapter);
     }
 }

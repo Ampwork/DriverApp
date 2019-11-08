@@ -86,6 +86,38 @@ public class AppUtility {
 
     }
 
+    public static String getNotificationDay(String input) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String currentTimeStr = simpleDateFormat.format(new Date());
+        Date currentDay = null,inputDay=null;
+        try {
+            currentDay = simpleDateFormat.parse(currentTimeStr);
+            inputDay = simpleDateFormat.parse(input);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        long difference = currentDay.getTime() - inputDay.getTime();
+        int days = (int) (difference / (1000 * 60 * 60 * 24));
+
+        String differenceStr = String.valueOf(days);
+
+        if(days==0){
+            differenceStr = "Today";
+        }else if(days==1){
+            differenceStr = "Yesterday";
+        }else {
+            differenceStr = input;
+        }
+
+        return differenceStr;
+
+
+    }
+
+
     public static String getCurrentTimeStamp(){
         Long tsLong = System.currentTimeMillis()/1000;
         String ts = tsLong.toString();

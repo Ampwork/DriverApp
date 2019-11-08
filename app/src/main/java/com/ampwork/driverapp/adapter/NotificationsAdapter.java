@@ -15,6 +15,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ampwork.driverapp.R;
+import com.ampwork.driverapp.Util.AppUtility;
 import com.ampwork.driverapp.model.Notification;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
@@ -42,22 +43,30 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
        final Notification notification = notificationArrayList.get(position);
 
-       holder.messageTv.setText(notification.getMessage());
-       holder.dateTv.setText(notification.getDate());
+        if (notification != null) {
+            String[] strings = notification.getDate().split(" ");
+            final String notificationDay = AppUtility.getNotificationDay(strings[0]);
+            final String notificationTime = strings[1] + " " + strings[2];
 
-       holder.mainLayout.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-               showDetail(notification);
-           }
-       });
+            holder.messageTv.setText(notification.getMessage());
+            holder.dateTv.setText(notificationDay);
+            holder.timeTv.setText(notificationTime);
+
+            holder.mainLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    notification.setDate(notificationDay + " " + notificationTime);
+                    showDetail(notification);
+                }
+            });
+        }
     }
 
     private void showDetail(Notification notification) {
 
         View view = LayoutInflater.from(context).inflate(R.layout.notification_detail_layout, null);
 
-        Button successBtn = view.findViewById(R.id.successBtn);
+        TextView successBtn = view.findViewById(R.id.successBtn);
         TextView dateTv = view.findViewById(R.id.dateTv);
         TextView messageTv = view.findViewById(R.id.messageTv);
 
@@ -66,7 +75,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
         final AlertDialog dialog = new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
                 .setView(view)
-                .setCancelable(false)
+                .setCancelable(true)
                 .show();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
@@ -87,7 +96,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
 
     public class ViewHolder extends RecyclerView.ViewHolder{
 
-        TextView messageTv,dateTv;
+        TextView messageTv, dateTv, timeTv;
         RelativeLayout mainLayout;
 
         public ViewHolder(@NonNull View itemView) {
@@ -95,7 +104,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             mainLayout = itemView.findViewById(R.id.mainLayout);
             messageTv = itemView.findViewById(R.id.messageTv);
             dateTv = itemView.findViewById(R.id.dateTv);
+            timeTv = itemView.findViewById(R.id.timeTv);
         }
-
     }
 }

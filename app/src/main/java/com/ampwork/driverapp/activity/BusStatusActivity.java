@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -216,9 +217,32 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         stopBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                fab_bell.shrink(true);
 
-                stopTrip();
+                if(preferencesManager.getBooleanValue(AppConstant.PREF_TRIP_COMPLETED)){
+                    fab_bell.shrink(true);
+                    stopTrip();
+                }else {
+                    final AlertDialog dialog = new MaterialAlertDialogBuilder(BusStatusActivity.this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                            .setTitle("You want to stop the trip?")
+                            .setCancelable(false)
+                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                    fab_bell.shrink(true);
+                                    stopTrip();
+                                }
+                            })
+                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            })
+                            .show();
+                }
+
+
 
             }
         });
@@ -1185,7 +1209,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             m.setTag(busStops);
         }
 
-
         //Draw the route.
         String path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
         if (path.length() > 1) {
@@ -1248,8 +1271,14 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             }
 
             if (busMarker != null) {
-                //marker.setPosition(bus_location);
-                busMarker.setTitle(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+
+                // Set busmarker title
+                BusStops busMarkerData = new BusStops();
+                busMarkerData.setBusStopName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME ));
+                busMarker.setTag(busMarkerData);
+
+               /* //marker.setPosition(bus_location);
+                busMarker.setTitle(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));*/
                 MarkerAnimation.animateMarkerToGB(busMarker, bus_location, new LatLngInterpolator.Spherical());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 16));
 
@@ -1266,7 +1295,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                 busMarker = mMap.addMarker(markerOptions1);
-
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 14));
 
             }
