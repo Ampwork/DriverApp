@@ -146,10 +146,8 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         busStopsArrayList = intent.getParcelableArrayListExtra("bus_stops_list");
         return START_NOT_STICKY;
-        // return super.onStartCommand(intent, flags, startId);
 
     }
 
@@ -174,16 +172,14 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.mipmap.ic_app_launcher);
         } else {
             builder = new Notification.Builder(this)
                     .setContentTitle(getString(R.string.app_name))
                     .setContentText("updating bus location..")
-                    //Make this notification ongoing so it can’t be dismissed by the user//
-
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher);
+                    .setSmallIcon(R.mipmap.ic_app_launcher);
         }
         startForeground(1, builder.build());
     }
@@ -314,8 +310,62 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
         }
 
+        if(!is_trip_completed){
+            int nextOrder = Integer.parseInt(preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER));
+            BusStops busStops = busStopsArrayList.get(nextOrder);
+            Location nextStopLoc = AppUtility.strToLocation(busStops.getLatitude()+","+busStops.getLongitude());
+            float distance = location.distanceTo(nextStopLoc);
+            if(distance < 50){
+               String currentStopOrderId = nextStopOrderId;
+                preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, true);
+               if(!is_track_enabled){
+                   is_track_enabled = true;
+                   preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED,true);
+               }else if(currentStopOrderId.equalsIgnoreCase(endPoint)){
+                   is_destination_reached = true;
+                   is_trip_completed = true;
+                   preferencesManager.setBooleanValue(AppConstant.PREF_DEST_REACHED,true);
+                   preferencesManager.setBooleanValue(AppConstant.PREF_TRIP_COMPLETED,true);
+               }
+            }else if(distance>100) {
+                if(preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)){
+                    int next_stop_order = Integer.parseInt(nextStopOrderId);
+                    if (direction.equalsIgnoreCase("-1")) {
+                        next_stop_order = Integer.parseInt(nextStopOrderId) + 1;
+                    }else if (direction.equalsIgnoreCase("1")){
+                         next_stop_order = Integer.parseInt(nextStopOrderId) - 1;
+                    }
 
-      /*  if(!is_track_enabled){
+                    nextStopOrderId = String.valueOf(next_stop_order);
+                    nextStopName = busStopsArrayList.get(next_stop_order).getBusStopName();
+
+                    preferencesManager.setStringValue(AppConstant.PREF_NEXT_STOP, nextStopName);
+                    preferencesManager.setStringValue(AppConstant.PREF_NEXT_STOP_ORDER, nextStopOrderId);
+
+                    preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
+
+                    String busStopsCovered = preferencesManager.getStringValue(AppConstant.PREF_BUS_STOPS_COVERED);
+                    if (!busStopsCovered.contains(busStops.getBusStopOrder())) {
+                        busStopsCovered = busStopsCovered + "," + busStops.getBusStopOrder();
+                        preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, busStopsCovered);
+                    }
+
+                    String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+                    String bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
+
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_BUSTRACKING_TB);
+                    HashMap<String, Object> objectHashMap = new HashMap<>();
+                    objectHashMap.put(AppConstant.PREF_STR_BELL_COUNTS, "0");
+                    databaseReference.child(institute_key).child(bus_key).updateChildren(objectHashMap);
+
+                }
+
+            }
+        }
+
+
+
+      /* if(!is_track_enabled){
             if (direction.equalsIgnoreCase("-1")) {
                 BusStops busStops = busStopsArrayList.get(0);
                 double distance = AppUtility.meterDistanceBetweenPoints((float) location.getLatitude(), (float) location.getLongitude(), Float.valueOf(busStops.getLatitude()), Float.valueOf(busStops.getLongitude()));
@@ -379,4 +429,5 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
     private void stopLocationUpdates() {
         fusedLocationProviderClient.removeLocationUpdates(locationCallback);
     }
+
 }

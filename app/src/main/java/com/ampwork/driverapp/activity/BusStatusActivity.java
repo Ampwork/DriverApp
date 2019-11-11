@@ -98,7 +98,7 @@ import java.util.Set;
 
 public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
 
-    private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv,busDistanceTv, speedTV, nextStopTv, timerTV;
+    private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
     private LinearLayout rideStatusLayout, busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
@@ -185,7 +185,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     } else {
                         updateScreenUI(null, null);
                     }
-                } else if (intent.getAction().equalsIgnoreCase(AppConstant.STR_NOTIFICATION_FILTER)){
+                } else if (intent.getAction().equalsIgnoreCase(AppConstant.STR_NOTIFICATION_FILTER)) {
                     preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
                     showNotificationBadge();
 
@@ -218,10 +218,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onClick(View view) {
 
-                if(preferencesManager.getBooleanValue(AppConstant.PREF_TRIP_COMPLETED)){
+                if (preferencesManager.getBooleanValue(AppConstant.PREF_TRIP_COMPLETED)) {
                     fab_bell.shrink(true);
                     stopTrip();
-                }else {
+                } else if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
                     final AlertDialog dialog = new MaterialAlertDialogBuilder(BusStatusActivity.this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
                             .setTitle("You want to stop the trip?")
                             .setCancelable(false)
@@ -241,7 +241,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                             })
                             .show();
                 }
-
 
 
             }
@@ -282,7 +281,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         if (preferencesManager.getBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED)) {
             showNotificationBadge();
         }
-
 
 
         navigationView.setNavigationItemSelectedListener(this);
@@ -348,9 +346,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         if (busStopsArrayList != null && busStopsArrayList.size() > 0) {
 
-            // Register Geofence
+          /*  // Register Geofence
             mGeoFencing.updateGeofencesList(busStopsArrayList);
-            mGeoFencing.registerAllGeofences();
+            mGeoFencing.registerAllGeofences();*/
 
             drive_direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
 
@@ -620,9 +618,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         Boolean isSosPressed = preferencesManager.getBooleanValue(AppConstant.PREF_DRIVER_SOS);
         MenuItem item = menu.getItem(0);
         SpannableString s = new SpannableString(getResources().getString(R.string.action_sos));
-        if(isSosPressed){
+        if (isSosPressed) {
             s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.error_color)), 0, s.length(), 0);
-        }else {
+        } else {
             s.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.secondaryColor)), 0, s.length(), 0);
         }
 
@@ -648,7 +646,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void enableSOS() {
-        
+
         Boolean is_driving = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
         Boolean is_sos_pressed = preferencesManager.getBooleanValue(AppConstant.PREF_DRIVER_SOS);
         final String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
@@ -661,7 +659,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, true);
                     invalidateOptionsMenu();
                     Toast.makeText(BusStatusActivity.this, "SOS is successfull..", Toast.LENGTH_SHORT).show();
-                    addSosToLog(institute_key,bus_tracking_key);
+                    addSosToLog(institute_key, bus_tracking_key);
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
@@ -752,8 +750,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
                     preferencesManager.setStringValue(AppConstant.PREF_BUS_PATH, "");
                     preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, "");
-                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED,  0.0f);
-                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED,  0.0f);
+                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED, 0.0f);
+                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED, 0.0f);
                     preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, false);
                     preferencesManager.setBooleanValue(AppConstant.PREF_DEST_REACHED, false);
                     preferencesManager.setBooleanValue(AppConstant.PREF_TRIP_COMPLETED, false);
@@ -788,7 +786,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         String tripDistance = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE);
 
         Driver driver = new Driver(bloodgroup, driverDL, driverId, driverName, driverPhone, emergency, gender, institute, password, fcmToken
-                , totalTrips, tripDistance,true);
+                , totalTrips, tripDistance, true);
 
         return driver;
     }
@@ -925,7 +923,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         String mileage = preferencesManager.getStringValue(AppConstant.PREF_MILEAGE);
 
         LiveBusDetail liveBusDetail = new LiveBusDetail(busLocation, busName, busNumber, busPath, departureTime, destinationReached, direction, driverId, driverName, driving, endPoint, institute, nextStopName, nextStopOrderId, odometerReading, routeId, routeName, startPoint, trackEnabled, tripCompleted, sos, driverSos, bellCounts,
-                totalDistance, totalFuel, totalTrips, tripDistance,mileage);
+                totalDistance, totalFuel, totalTrips, tripDistance, mileage);
 
         return liveBusDetail;
 
@@ -1138,9 +1136,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                                 startService(trackingIntent);
                                 // bindService(liveTrackingIntent, mConnection, Context.BIND_AUTO_CREATE);
 
-                                // Register Geofence
+                              /*  // Register Geofence
                                 mGeoFencing.updateGeofencesList(busStopsArrayList);
-                                mGeoFencing.registerAllGeofences();
+                                mGeoFencing.registerAllGeofences();*/
 
                                 //Notify the user that tracking has been enabled//
                                 Log.d(TAG, "onSuccess: GPS tracking enabled");
@@ -1228,13 +1226,14 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 String nextStopOrder = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER);
                 String startPointOrder = preferencesManager.getStringValue(AppConstant.PREF_START_POINT_ID);
 
-                if (nextStopOrder.equalsIgnoreCase(startPointOrder)) {
+                if (nextStopOrder.equalsIgnoreCase(startPointOrder) || preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
                     nextStopTv.setText(nextStopName);
                 } else {
                     nextStopTv.setText("Next Stop : " + nextStopName);
                 }
             }
         }
+
         if (location != null) {
             Boolean is_track_enabled = preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED);
             Boolean is_destination_reached = preferencesManager.getBooleanValue(AppConstant.PREF_DEST_REACHED);
@@ -1274,7 +1273,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
                 // Set busmarker title
                 BusStops busMarkerData = new BusStops();
-                busMarkerData.setBusStopName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME ));
+                busMarkerData.setBusStopName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
                 busMarker.setTag(busMarkerData);
 
                /* //marker.setPosition(bus_location);
@@ -1290,7 +1289,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 Bitmap smallCar = Bitmap.createScaledBitmap(b, 84, 96, false);
                 markerOptions1.icon(BitmapDescriptorFactory.fromBitmap(smallCar));
                 markerOptions1.position(bus_location);
-                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME )+ " - " +
+                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME) + " - " +
                         preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
 
 
@@ -1432,11 +1431,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             // Handle the camera action
         } else if (id == R.id.nav_notification) {
             hideNotificationBadge();
-            Intent notificationIntent = new Intent(BusStatusActivity.this,NotificationActivity.class);
+            Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
             startActivity(notificationIntent);
 
         } else if (id == R.id.nav_trips) {
-            Intent tripListIntent = new Intent(BusStatusActivity.this,TripListActivity.class);
+            Intent tripListIntent = new Intent(BusStatusActivity.this, TripListActivity.class);
             startActivity(tripListIntent);
 
 
@@ -1445,7 +1444,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             startActivity(busDetailIntent);
 
         } else if (id == R.id.nav_settings) {
-            Intent settingsIntent = new Intent(BusStatusActivity.this,SettingsActivity.class);
+            Intent settingsIntent = new Intent(BusStatusActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
 
         } else if (id == R.id.nav_logout) {

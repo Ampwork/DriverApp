@@ -67,6 +67,8 @@ public class GeofenceTransitionsIntentService extends JobIntentService implement
 
         Geofence geofence = triggeringGeofences.get(0);
 
+        Log.d(TAG, "onHandleWork: "+ geofence.getRequestId() + " list siz" + triggeringGeofences.size() + " transition" + geofenceTransition );
+
         String stop_order = geofence.getRequestId();
         DBHelper.init(this);
         BusStops busStops = DBHelper.getBusStopData(stop_order);
@@ -249,7 +251,7 @@ public class GeofenceTransitionsIntentService extends JobIntentService implement
 
             }
 
-            String nextStopName = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP);
+          /*  String nextStopName = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP);
             String nextStopOrderId = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER);
 
             HashMap<String, Object> objectHashMap = LiveBusDetail.getBusStopsUpdateObj(is_destination_reached, nextStopName, nextStopOrderId, is_track_enabled, is_trip_completed);
@@ -258,7 +260,7 @@ public class GeofenceTransitionsIntentService extends JobIntentService implement
 
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("bus_tracking_tb/" + institute_key + "/" + bus_key);
             databaseReference.updateChildren(objectHashMap);
-
+*/
 
         }
         broadCastData(nextBusStop);
