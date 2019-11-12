@@ -260,6 +260,7 @@ public class AppUtility {
     }
 
     public static String getNextTripTime(String tripSchedules){
+
         String nextTripTime = "";
         String[] trip_times = tripSchedules.split(",");
         for (int i =0; i<trip_times.length;i++){
@@ -276,5 +277,6 @@ public class AppUtility {
         return nextTripTime;
 
     }
+
 
 }

@@ -219,10 +219,10 @@ public class TripDetaiActivity extends AppCompatActivity {
 
         if (tripType.equalsIgnoreCase(AppConstant.PREF_STR_PICKUP)) {
             if(tripTime.equalsIgnoreCase("Now")){
-                Toast.makeText(TripDetaiActivity.this, "Select scheduled time from the list.", Toast.LENGTH_LONG).show();
+                    checkBusLocation(busStopsArrayList.get(busStopsArrayList.size()-1));
             }else {
                 int diff = Integer.parseInt(AppUtility.getTimeDifferenceMinutes(tripTime));
-                if (true/*diff <= 0*/) {
+                if ( diff <= 0 ) {
                     callNextScreen();
                 } else {
                     Toast.makeText(TripDetaiActivity.this, "Sorry .. you are late for the trip.", Toast.LENGTH_LONG).show();
@@ -230,7 +230,14 @@ public class TripDetaiActivity extends AppCompatActivity {
             }
 
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(tripTime.equalsIgnoreCase("Now")){
+                checkBusLocation(busStopsArrayList.get(0));
+            }else {
+                callNextScreen();
+            }
+
+
+         /*   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
                     //    Activity#requestPermissions
@@ -266,7 +273,7 @@ public class TripDetaiActivity extends AppCompatActivity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Toast.makeText(TripDetaiActivity.this, "Trip cannot be started because you are not inside the starting point", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(TripDetaiActivity.this, "Please Go to trip starting point then start the trip.", Toast.LENGTH_LONG).show();
                                     //finish();
                                 }
                             });
@@ -274,9 +281,47 @@ public class TripDetaiActivity extends AppCompatActivity {
                         }
                     }
                 }
-            });
+            });*/
 
         }
+    }
+
+    private void checkBusLocation(final BusStops busStops) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    Activity#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for Activity#requestPermissions for more details.
+                return;
+            }
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
+            @Override
+            public void onSuccess(Location location) {
+                if (location != null) {
+                    //BusStops busStops = busStopsArrayList.get(0);
+                    double distance = AppUtility.meterDistanceBetweenPoints((float) location.getLatitude(), (float) location.getLongitude(), Float.valueOf(busStops.getLatitude()), Float.valueOf(busStops.getLongitude()));
+
+                    if (distance <= 100.00) {
+                        callNextScreen();
+                    } else {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(TripDetaiActivity.this, "Please Go to trip starting point then start the trip.", Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                    }
+                }
+            }
+        });
+
     }
 
     private void callNextScreen() {

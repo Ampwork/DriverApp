@@ -35,7 +35,7 @@ public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
             busStopNameTv.setText(busStops.getBusStopName());
             if(busStops.getArrivalTime()!=null && busStops.getArrivalTime().length()>0){
                 arrivalTimeTv.setVisibility(View.VISIBLE);
-                arrivalTimeTv.setText(busStops.getArrivalTime());
+                arrivalTimeTv.setText("Est. Time : " + busStops.getArrivalTime());
             }else {
                 arrivalTimeTv.setVisibility(View.GONE);
             }
