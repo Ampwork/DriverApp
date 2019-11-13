@@ -14,6 +14,7 @@
 
     <TextView
         android:id="@+id/arrivalTimeTv"
+        android:visibility="gone"
         android:drawablePadding="@dimen/layout_margin"
         android:layout_margin="@dimen/layout_padding"
         android:layout_width="match_parent"

@@ -181,7 +181,6 @@ public class TripDetaiActivity extends AppCompatActivity {
         bindData(liveBusDetail);
 
 
-
     }
 
 
@@ -218,72 +217,36 @@ public class TripDetaiActivity extends AppCompatActivity {
     private void validate() {
 
         if (tripType.equalsIgnoreCase(AppConstant.PREF_STR_PICKUP)) {
-            if(tripTime.equalsIgnoreCase("Now")){
-                    checkBusLocation(busStopsArrayList.get(busStopsArrayList.size()-1));
-            }else {
+            if (tripTime.equalsIgnoreCase("Now")) {
+                checkBusLocation(busStopsArrayList.get(busStopsArrayList.size() - 1));
+                enableTrack();
+            } else {
                 int diff = Integer.parseInt(AppUtility.getTimeDifferenceMinutes(tripTime));
-                if ( diff <= 0 ) {
+                if (diff <= 0) {
                     callNextScreen();
                 } else {
                     Toast.makeText(TripDetaiActivity.this, "Sorry .. you are late for the trip.", Toast.LENGTH_LONG).show();
                 }
             }
 
-        } else {
-            if(tripTime.equalsIgnoreCase("Now")){
+        } else if (tripType.equalsIgnoreCase(AppConstant.PREF_STR_DROP)) {
+            enableTrack();
+            if (tripTime.equalsIgnoreCase("Now")) {
                 checkBusLocation(busStopsArrayList.get(0));
-            }else {
+            } else {
                 callNextScreen();
             }
 
 
-         /*   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    // TODO: Consider calling
-                    //    Activity#requestPermissions
-                    // here to request the missing permissions, and then overriding
-                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                    //                                          int[] grantResults)
-                    // to handle the case where the user grants the permission. See the documentation
-                    // for Activity#requestPermissions for more details.
-                    return;
-                }
-            }
-            fusedLocationProviderClient.getLastLocation().addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    if (location != null) {
-                        BusStops busStops = busStopsArrayList.get(0);
-                        double distance = AppUtility.meterDistanceBetweenPoints((float) location.getLatitude(), (float) location.getLongitude(), Float.valueOf(busStops.getLatitude()), Float.valueOf(busStops.getLongitude()));
-
-                        if (distance <= 100.00) {
-                            if(tripTime.equalsIgnoreCase("Now")){
-                                callNextScreen();
-                            }else {
-                                int diff = Integer.parseInt(AppUtility.getTimeDifferenceMinutes(tripTime));
-                                if (diff > 60 || diff < 60) {
-                                    callNextScreen();
-                                } else {
-                                    Toast.makeText(TripDetaiActivity.this, "Please select now depature time.", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-
-
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Toast.makeText(TripDetaiActivity.this, "Please Go to trip starting point then start the trip.", Toast.LENGTH_LONG).show();
-                                    //finish();
-                                }
-                            });
-
-                        }
-                    }
-                }
-            });*/
-
         }
+    }
+
+    private void enableTrack() {
+        preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, true);
+        preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, true);
+        //Since the bus will start from start point , add start point order,
+        preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, ",0");
+
     }
 
     private void checkBusLocation(final BusStops busStops) {
@@ -328,9 +291,9 @@ public class TripDetaiActivity extends AppCompatActivity {
 
         // start btn is clicked . update the pref. data
         preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, true);
-        preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED,  0.0f);
+        preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED, 0.0f);
         preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, "");
-        preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED,  0.0f);
+        preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED, 0.0f);
         preferencesManager.setStringValue(AppConstant.PREF_BUS_LAST_LOCATION, "");
 
 
@@ -345,12 +308,12 @@ public class TripDetaiActivity extends AppCompatActivity {
         String depart_time = AppUtility.getCurrentDateTime();
         preferencesManager.setStringValue(AppConstant.PREF_BUS_DEPART_TIME, depart_time);
 
-        if(tripTime.equalsIgnoreCase("Now")){
+        if (tripTime.equalsIgnoreCase("Now")) {
             // Since the depart time contains both date and time. split and extract only time.
             String[] array = depart_time.split(" ");
-           String trip_depart_time = array[1];
+            String trip_depart_time = array[1];
             preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, trip_depart_time);
-        }else {
+        } else {
             preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, tripTime);
         }
 
@@ -518,7 +481,7 @@ public class TripDetaiActivity extends AppCompatActivity {
             startBtn.setEnabled(false);
         } else {
             startBtn.setEnabled(true);
-            String depart_list =  AppUtility.getNextTripTime(preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME))+ ",Now";
+            String depart_list = AppUtility.getNextTripTime(preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME)) + ",Now";
             trip_time_array = depart_list.split(",");
 
             departTimeAdapter = new ArrayAdapter<>(TripDetaiActivity.this, R.layout.dropdown_menu_popup_item, trip_time_array);
@@ -535,10 +498,10 @@ public class TripDetaiActivity extends AppCompatActivity {
         String mileage = preferencesManager.getStringValue(AppConstant.PREF_MILEAGE);
 
         if (total_trips.length() > 0) {
-            if(Integer.parseInt(total_trips)>0){
+            if (Integer.parseInt(total_trips) > 0) {
                 totalTripsTv.setText(total_trips);
             }
-            if(Double.parseDouble(total_trip_distance)>0){
+            if (Double.parseDouble(total_trip_distance) > 0) {
                 tripDistanceTv.setText(String.format("%.2f", Double.parseDouble(total_trip_distance)));
             }
         }/* else {
@@ -546,10 +509,10 @@ public class TripDetaiActivity extends AppCompatActivity {
         }*/
 
         if (!(bus_total_reading.isEmpty() && mileage.isEmpty())) {
-            if(Double.parseDouble(bus_total_reading)>0){
+            if (Double.parseDouble(bus_total_reading) > 0) {
                 busReadingTv.setText(bus_total_reading);
             }
-            if(Double.parseDouble(mileage)>0){
+            if (Double.parseDouble(mileage) > 0) {
                 mileageTv.setText(mileage);
             }
 

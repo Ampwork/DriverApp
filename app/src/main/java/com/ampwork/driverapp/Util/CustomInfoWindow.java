@@ -13,9 +13,11 @@ import com.google.android.gms.maps.model.Marker;
 public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
 
     private Context context;
+    PreferencesManager preferencesManager;
 
     public CustomInfoWindow(Context context) {
         this.context = context;
+        preferencesManager = new PreferencesManager(context);
     }
 
     @Override
@@ -33,12 +35,15 @@ public class CustomInfoWindow implements GoogleMap.InfoWindowAdapter {
         BusStops busStops = (BusStops) marker.getTag();
         if(busStops!= null){
             busStopNameTv.setText(busStops.getBusStopName());
-            if(busStops.getArrivalTime()!=null && busStops.getArrivalTime().length()>0){
-                arrivalTimeTv.setVisibility(View.VISIBLE);
-                arrivalTimeTv.setText("Est. Time : " + busStops.getArrivalTime());
-            }else {
-                arrivalTimeTv.setVisibility(View.GONE);
+            if (preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED)) {
+                if(busStops.getArrivalTime()!=null && busStops.getArrivalTime().length()>0){
+                    arrivalTimeTv.setVisibility(View.VISIBLE);
+                    arrivalTimeTv.setText("Est. Time : " + busStops.getArrivalTime());
+                }else {
+                    arrivalTimeTv.setVisibility(View.GONE);
+                }
             }
+
         }
 
         return view;

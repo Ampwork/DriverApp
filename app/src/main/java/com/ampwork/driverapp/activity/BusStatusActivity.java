@@ -19,7 +19,6 @@ import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -101,7 +100,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
-    private LinearLayout rideStatusLayout, busDistanceLayout;
+    private LinearLayout busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
     NavigationView navigationView;
     BadgeDrawerToggle badgeDrawerToggle;
@@ -126,8 +125,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     GeoFencing mGeoFencing;
     BroadcastReceiver mBroadcastReceiver;
-    ArrayList<String> busStopsDurationArrayList = new ArrayList<>();
-    boolean isRouteUpdated = false;
+    boolean isRouteUpdated = false, isBusArrivalTimeUpdated = false;
     Toolbar toolbar;
 
     ValueEventListener valueEventListener;
@@ -1173,8 +1171,14 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         Marker originMarker, destinationMarker;
 
+        if (preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED)) {
+            isBusArrivalTimeUpdated = true;
+        }
+
         CustomInfoWindow customInfoWindow = new CustomInfoWindow(this);
         mMap.setInfoWindowAdapter(customInfoWindow);
+
+
 
         // add Origin and Destination Marker
         String bus_direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
@@ -1193,9 +1197,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         originMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(busStopsOrigin.getLatitude()), Double.valueOf(busStopsOrigin.getLongitude()))).title(busStopsOrigin.getBusStopName()));
         originMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bus_stop_icon));
+        originMarker.setTitle(busStopsOrigin.getBusStopName());
         originMarker.setTag(busStopsOrigin);
         destinationMarker = mMap.addMarker(new MarkerOptions().position(new LatLng(Double.valueOf(busStopsDestination.getLatitude()), Double.valueOf(busStopsDestination.getLongitude()))).title(busStopsDestination.getBusStopName()));
         destinationMarker.setIcon(BitmapDescriptorFactory.fromBitmap(bus_stop_icon));
+        destinationMarker.setTitle(busStopsDestination.getBusStopName());
         destinationMarker.setTag(busStopsDestination);
 
 
@@ -1211,11 +1217,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             m.setTag(busStops);
         }
 
-        //Draw the route.
+      /*  //Draw the route.
         String path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
         if (path.length() > 1) {
             redrawLine(path);
-        }
+        }*/
 
     }
 
@@ -1239,7 +1245,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 //        }
 
         if (location != null) {
-           /* Boolean is_track_enabled = preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED);
+
+            Boolean is_track_enabled = preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED);
+            Boolean is_driving = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
+
+           /*
             Boolean is_destination_reached = preferencesManager.getBooleanValue(AppConstant.PREF_DEST_REACHED);
 
             if (is_track_enabled && !is_destination_reached) {
@@ -1256,50 +1266,43 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
             // get distance in kilometer.
             float distance = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED) / 1000.00);
-            if (distance > 0) {
-                busDistanceLayout.setVisibility(View.VISIBLE);
-                busDistanceTv.setText(String.format("%.2f", distance));
-            }
-            float speed = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
-            if (speed > 0) {
-                speedTV.setVisibility(View.VISIBLE);
-                speedTV.setText("Speed : " + String.format("%.2f", speed) + " km/h");
+
+            if(is_driving) {
+                if (distance > -1) {
+                    busDistanceLayout.setVisibility(View.VISIBLE);
+                    busDistanceTv.setText(String.format("%.2f", distance));
+                }
+                float speed = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
+                if (speed > -1) {
+                    speedTV.setVisibility(View.VISIBLE);
+                    speedTV.setText("Speed : " + String.format("%.2f", speed) + " km/h");
+                }
             }
 
             LatLng bus_location = new LatLng(location.getLatitude(), location.getLongitude());
             String path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
-
             if (path.length() > 1) {
                 redrawLine(path);
             }
 
             if (busMarker != null) {
+                if (is_track_enabled && !isBusArrivalTimeUpdated) {
 
-                // Set busmarker title
-                BusStops busMarkerData = new BusStops();
-                busMarkerData.setBusStopName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
-                busMarker.setTag(busMarkerData);
+                    displayMapObject(bus_location);
 
-                MarkerAnimation.animateMarkerToGB(busMarker, bus_location, new LatLngInterpolator.Spherical());
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 16));
+                } else {
+                    // Set busmarker title
+                    BusStops busMarkerData = new BusStops();
+                    busMarkerData.setBusStopName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+                    busMarker.setTag(busMarkerData);
+
+                    MarkerAnimation.animateMarkerToGB(busMarker, bus_location, new LatLngInterpolator.Spherical());
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 16));
+                }
 
             } else {
 
-                if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
-                    addBusstopsMarker();
-                }
-
-                MarkerOptions markerOptions1 = new MarkerOptions();
-                BitmapDrawable bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.bus_marker);
-                Bitmap b = bitmapDrawable.getBitmap();
-                Bitmap smallCar = Bitmap.createScaledBitmap(b, 84, 96, false);
-                markerOptions1.icon(BitmapDescriptorFactory.fromBitmap(smallCar));
-                markerOptions1.position(bus_location);
-                markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
-
-
-                busMarker = mMap.addMarker(markerOptions1);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 14));
+                displayMapObject(bus_location);
 
             }
 
@@ -1333,10 +1336,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 } else {
                     if (preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
-                        nextStopTv.setText("This Stop : " + nextStopName);
+                        nextStopTv.setText("Current Stop : " + nextStopName);
                     } else {
                         if (nextStopOrder.equalsIgnoreCase(startPointOrder)) {
-                            nextStopTv.setText(nextStopName);
+                            nextStopTv.setText("Current Stop : " + nextStopName);
                         } else {
                             nextStopTv.setText("Next Stop : " + nextStopName);
                         }
@@ -1349,6 +1352,28 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             if (preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
                 checkNearByStudentsCount();
             }
+
+        }
+    }
+
+    private void displayMapObject(LatLng bus_location) {
+
+        mMap.clear();
+
+        MarkerOptions markerOptions1 = new MarkerOptions();
+        BitmapDrawable bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.bus_marker);
+        Bitmap b = bitmapDrawable.getBitmap();
+        Bitmap smallCar = Bitmap.createScaledBitmap(b, 84, 96, false);
+        markerOptions1.icon(BitmapDescriptorFactory.fromBitmap(smallCar));
+        markerOptions1.position(bus_location);
+        markerOptions1.title(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+
+        busMarker = mMap.addMarker(markerOptions1);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(busMarker.getPosition(), 14));
+
+        if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
+
+            addBusstopsMarker();
 
         }
     }
@@ -1405,7 +1430,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     }
 
-    private void redrawLine(String path/*, Boolean isAppResumed*/) {
+    private void redrawLine(String path) {
 
 
         String[] points = path.split(":");
