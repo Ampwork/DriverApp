@@ -1,6 +1,7 @@
 package com.ampwork.driverapp.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -17,7 +18,8 @@ import com.ampwork.driverapp.Util.PreferencesManager;
 public class BusDetailActivity extends AppCompatActivity {
 
     private EditText routeNameEdt, busNameEdt, busNumberEdt, busReadingEdt;
-    private TextView busTimingTv,totalTripsTv, distanceTv, mileageTv, fuelReadingTv;
+    private TextView busTimingTv,busStopsTv,totalTripsTv, distanceTv, mileageTv, fuelReadingTv;
+    private CardView busStopsView;
     private ImageView backImageView;
 
     PreferencesManager preferencesManager;
@@ -36,7 +38,11 @@ public class BusDetailActivity extends AppCompatActivity {
         busNumberEdt = findViewById(R.id.busNumberEdt);
         busReadingEdt = findViewById(R.id.busReadingEdt);
 
+
+        busStopsView = findViewById(R.id.busStopsView);
+
         busTimingTv = findViewById(R.id.busTimingTv);
+        busStopsTv = findViewById(R.id.busStopsTv);
         totalTripsTv = findViewById(R.id.totalTripsTv);
         distanceTv = findViewById(R.id.distanceTv);
         mileageTv = findViewById(R.id.mileageTv);
@@ -60,6 +66,28 @@ public class BusDetailActivity extends AppCompatActivity {
         bus_timing.trim();
         str_bus_timings = bus_timing.substring(0, bus_timing.length() - 2);
         busTimingTv.setText(str_bus_timings);
+
+
+        String str_bus_stops = preferencesManager.getStringValue(AppConstant.PREF_BUS_STOPS_LIST);
+
+        if (str_bus_stops.length() > 0) {
+            String bus_stop_list = "";
+            String[] stops_array = str_bus_stops.split(",");
+            for (String string : stops_array) {
+                bus_stop_list = bus_stop_list + string + ", ";
+            }
+            bus_stop_list.trim();
+            str_bus_stops = bus_stop_list.substring(0, bus_stop_list.length() - 2);
+
+            busStopsView.setVisibility(View.VISIBLE);
+            busStopsTv.setText(str_bus_stops);
+        } else {
+            busStopsView.setVisibility(View.GONE);
+        }
+
+
+
+
 
         totalTripsTv.setText(preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS));
         distanceTv.setText(String.format("%.2f",Double.parseDouble(preferencesManager.getStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE))));

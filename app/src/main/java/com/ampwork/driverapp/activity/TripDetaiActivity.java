@@ -345,12 +345,15 @@ public class TripDetaiActivity extends AppCompatActivity {
                 // clear the table
                 DBHelper.init(TripDetaiActivity.this);
                 DBHelper.deleteGeofenceShopsTable();
+                String bus_stops_list = "";
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BusStops busStops = snapshot.getValue(BusStops.class);
                     busStops.setArrivalTime("");
+                    bus_stops_list = bus_stops_list + busStops.getBusStopName() + ", ";
                     busStopsArrayList.add(busStops);
                     DBHelper.addStops(busStops);
                 }
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_LIST, bus_stops_list);
                 preferencesManager.setStringValue(AppConstant.PREF_TOTAL_BUS_STOPS, String.valueOf(busStopsArrayList.size()));
                 validate();
             }

@@ -101,6 +101,10 @@
     <string name="login_failed">"Login failed"</string>
 
 
+    <!--Bus Detail-->
+    <string name="bus_timings">Bus Timings</string>
+    <string name="bus_stops">Bus Stops</string>
+
     <!--Settings-->
     <string name="user_profile">Profile</string>
     <string name="change_pwd">Change Password</string>

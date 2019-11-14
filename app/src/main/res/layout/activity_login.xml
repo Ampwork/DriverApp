@@ -146,6 +146,7 @@
                         android:inputType="textPassword"
                         android:maxLines="1"
                         android:maxLength="12"
+                        android:imeOptions="actionDone"
                         android:cursorVisible="true"
                         android:textColor="@color/secondaryTextColor" />
                 </com.google.android.material.textfield.TextInputLayout>

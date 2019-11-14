@@ -217,10 +217,9 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         locationRequest = new LocationRequest();//LocationRequest.create();
 
         //Specify how often your app should request the device’s location//
-        locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
-        locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-        //locationRequest.setSmallestDisplacement(AppConstant.PREF_BUS_DISPLACEMENT);
-        //Get the most accurate location data available//
+        locationRequest.setInterval(0/*UPDATE_INTERVAL_IN_MILLISECONDS*/);
+        locationRequest.setFastestInterval(0/*FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS*/);
+        locationRequest.setSmallestDisplacement(AppConstant.PREF_BUS_DISPLACEMENT);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -270,19 +269,10 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
         String busLocation = preferencesManager.getStringValue(AppConstant.PREF_BUS_LOCATION);
         Boolean isDriving = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
-        String busName = preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME);
-        String busNumber = preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER);
-        String odometerReading = preferencesManager.getStringValue(AppConstant.PREF_INITIAL_ODOMETER);
-        String departureTime = preferencesManager.getStringValue(AppConstant.PREF_SC_DEPART_TIME);
-        String direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
-        String driverId = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_ID);
-        String driverName = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME);
-        String endPoint = preferencesManager.getStringValue(AppConstant.PREF_END_POINT);
         String nextStopName = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP);
         String nextStopOrderId = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER);
-        String routeId = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID);
-        String routeName = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME);
-        String startPoint = preferencesManager.getStringValue(AppConstant.PREF_START_POINT);
+        String direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
+
 
         String start_point_order = preferencesManager.getStringValue(AppConstant.PREF_START_POINT_ID);
         String dest_stop_order = preferencesManager.getStringValue(AppConstant.PREF_END_POINT_ID);
@@ -292,7 +282,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         Boolean is_track_enabled = preferencesManager.getBooleanValue(AppConstant.PREF_TRACK_ENABLED);
         Boolean is_trip_completed = preferencesManager.getBooleanValue(AppConstant.PREF_TRIP_COMPLETED);
         String bus_path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
-        String institute = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE);
+
 
         // when driver start the trip set isDriving true; and update trackEnabled flag.
         if (!isDriving && start_btn_activated) {
@@ -317,7 +307,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
 
         /*Find the Bus next BusStop*/
-        if (!preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS) && is_track_enabled) {
+        if (!preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
             int next_stop_order = -1;
             String busStopsCovered = preferencesManager.getStringValue(AppConstant.PREF_BUS_STOPS_COVERED);
             BusStops busStops = null;

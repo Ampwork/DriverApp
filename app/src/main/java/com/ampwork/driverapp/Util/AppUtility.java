@@ -136,9 +136,9 @@ public class AppUtility {
         }
 
         long difference = stopTime.getTime() - startTime.getTime();
-        int days = (int) (difference / (1000 * 60 * 60 * 24));
+       /* int days = (int) (difference / (1000 * 60 * 60 * 24));
         int hours = (int) ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60));
-        int min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);
+        int min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);*/
 
         String differenceStr = String.valueOf(difference/(1000*60));
 
@@ -147,28 +147,7 @@ public class AppUtility {
 
     }
 
-    public static String getTimeDifference1(String stopTimeStr,String startTimeStr) {
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
-        Date stopTime = null,startTime=null;
-        try {
-            stopTime = simpleDateFormat.parse(stopTimeStr);
-            startTime = simpleDateFormat.parse(startTimeStr);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        long difference = stopTime.getTime() - startTime.getTime();
-        int days = (int) (difference / (1000 * 60 * 60 * 24));
-        int hours = (int) ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60));
-        int min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);
-
-        String differenceStr = String.valueOf(difference/(1000*60));
-
-        return differenceStr;
-
-
-    }
 
 
     public static String getCurrentDate(){

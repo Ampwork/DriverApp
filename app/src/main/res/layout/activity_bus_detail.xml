@@ -218,13 +218,13 @@
                         android:layout_height="wrap_content"
                         android:textSize="@dimen/title_ts"
                         android:textColor="@color/black"
-                        android:text="Bus Timings"/>
+                        android:text="@string/bus_timings"/>
 
                     <TextView
                         android:id="@+id/busTimingTv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/subtitle_ts"
+                        android:textSize="@dimen/desc_ts"
                         android:layout_marginTop="@dimen/layout_padding"
                         android:textColor="@color/black"
                         tools:text="Bus Timings"/>
@@ -235,6 +235,46 @@
 
 
             </com.google.android.material.card.MaterialCardView>
+
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/busStopsView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                app:cardCornerRadius="@dimen/card_radius"
+                app:cardElevation="@dimen/card_elevation">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/layout_margin"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/changeRouteTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/bus_stops"
+                        android:textColor="@color/secondaryTextColor"
+                        android:textFontWeight="300"
+                        android:textSize="@dimen/subtitle_ts" />
+
+                    <TextView
+                        android:id="@+id/busStopsTv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/layout_padding"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/desc_ts"
+                        tools:text="Bus stops" />
+
+
+                </LinearLayout>
+
+
+            </com.google.android.material.card.MaterialCardView>
+
+
 
 
             <LinearLayout
