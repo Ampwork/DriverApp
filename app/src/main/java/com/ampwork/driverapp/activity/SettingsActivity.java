@@ -22,6 +22,7 @@ import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.model.BusLog;
+import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -67,7 +68,9 @@ public class SettingsActivity extends AppCompatActivity {
         changePwdTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showChangePassword();
+                if (ConnectivityReceiver.isConnected()) {
+                    showChangePassword();
+                }
             }
         });
 

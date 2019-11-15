@@ -5,9 +5,12 @@ import android.content.Intent;
 
 import androidx.annotation.NonNull;
 
+import com.ampwork.driverapp.MyApplication;
 import com.ampwork.driverapp.model.InstituteDetail;
+import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -44,7 +47,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
 
 
     private EditText phoneEdt, passwordEdt;
@@ -158,8 +161,22 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        getIntitutesList();
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+
+        if(ConnectivityReceiver.isConnected()){
+            getIntitutesList();
+        }else {
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.loginBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
+            snackbar.show();
+        }
     }
 
     private void getIntitutesList() {
@@ -178,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                getIntitutesList();
+                Toast.makeText(LoginActivity.this, "Data Base connection error..", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -359,6 +376,19 @@ public class LoginActivity extends AppCompatActivity {
 
                     }
                 });
+
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        if(isConnected){
+            getIntitutesList();
+        }else {
+            Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.loginBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
+            snackbar.show();
+
+        }
 
     }
 }

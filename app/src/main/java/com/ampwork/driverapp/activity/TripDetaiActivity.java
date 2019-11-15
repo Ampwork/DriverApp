@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ampwork.driverapp.MyApplication;
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.AppUtility;
@@ -31,6 +32,7 @@ import com.ampwork.driverapp.database.DBHelper;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusStops;
 import com.ampwork.driverapp.model.LiveBusDetail;
+import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -47,7 +49,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class TripDetaiActivity extends AppCompatActivity {
+public class TripDetaiActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
 
     private static final String TAG = "TripDetaiActivity";
     private TextInputLayout routeNameEdtLayout, busNameEdtLayout, busNumberEdtLayout, tripTypeAutoComTvLayout, departTimeAutoComTvLayout;
@@ -183,6 +185,12 @@ public class TripDetaiActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+    }
 
     private void initViews() {
 
@@ -540,4 +548,10 @@ public class TripDetaiActivity extends AppCompatActivity {
         super.onBackPressed();
     }
 
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        if(!isConnected){
+            onBackPressed();
+        }
+    }
 }

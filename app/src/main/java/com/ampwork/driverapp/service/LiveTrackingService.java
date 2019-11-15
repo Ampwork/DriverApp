@@ -217,11 +217,10 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         locationRequest = new LocationRequest();//LocationRequest.create();
 
         //Specify how often your app should request the device’s location//
-        locationRequest.setInterval(0/*UPDATE_INTERVAL_IN_MILLISECONDS*/);
-        locationRequest.setFastestInterval(0/*FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS*/);
-        locationRequest.setSmallestDisplacement(AppConstant.PREF_BUS_DISPLACEMENT);
+        locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
+        locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
+        locationRequest.setSmallestDisplacement(0/*AppConstant.PREF_BUS_DISPLACEMENT*/);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
         SettingsClient client = LocationServices.getSettingsClient(this);

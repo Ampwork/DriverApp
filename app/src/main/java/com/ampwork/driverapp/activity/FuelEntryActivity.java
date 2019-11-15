@@ -19,15 +19,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ampwork.driverapp.MyApplication;
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.AppUtility;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.Fuel;
+import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -40,7 +43,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class FuelEntryActivity extends AppCompatActivity {
+public class FuelEntryActivity extends AppCompatActivity implements ConnectivityReceiver.ConnectivityReceiverListener {
 
     private TextInputLayout fuelQtyEdtLayout, amountEdtLayout, odometerEdtLayout;
     private EditText driverNameEdt, busNameEdt, busNumberEdt, fuelQtyEdt, amountEdt, odometerEdt, previousOdometerEdt;
@@ -136,32 +139,21 @@ public class FuelEntryActivity extends AppCompatActivity {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fuel_qty = fuelQtyEdt.getText().toString();
-                amount = amountEdt.getText().toString();
-                current_odometer = odometerEdt.getText().toString();
-                date = AppUtility.getCurrentDate();
-
-                if (fuel_qty.isEmpty() || Integer.parseInt(fuel_qty) < 1) {
-                    fuelQtyEdtLayout.setError(getResources().getString(R.string.helper_txt_fuel));
-
-                } else if (amount.isEmpty() || Integer.parseInt(amount) < 1) {
-                    amountEdtLayout.setError(getResources().getString(R.string.helper_txt_amount));
-
-                } else if (current_odometer.isEmpty() || Integer.parseInt(current_odometer) < 1) {
-                    odometerEdtLayout.setError(getResources().getString(R.string.error_txt_odometer));
+                if (ConnectivityReceiver.isConnected()) {
+                    saveData();
                 } else {
-                    saveBtn.setEnabled(false);
-
-
-                    new android.os.Handler().postDelayed(
-                            new Runnable() {
-                                public void run() {
-                                    validateFuelEntry(previousFuelData);
-                                }
-                            }, 2000);
-
+                    final Snackbar snackbar = Snackbar
+                            .make(findViewById(R.id.saveBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
+                    snackbar.setAction("OK", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                        }
+                    });
+                    snackbar.show();
 
                 }
+
             }
         });
 
@@ -171,9 +163,59 @@ public class FuelEntryActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+    }
 
-        getLastFuelReading();
+    private void saveData() {
 
+        fuel_qty = fuelQtyEdt.getText().toString();
+        amount = amountEdt.getText().toString();
+        current_odometer = odometerEdt.getText().toString();
+        date = AppUtility.getCurrentDate();
+
+        if (fuel_qty.isEmpty() || Integer.parseInt(fuel_qty) < 1) {
+            fuelQtyEdtLayout.setError(getResources().getString(R.string.helper_txt_fuel));
+
+        } else if (amount.isEmpty() || Integer.parseInt(amount) < 1) {
+            amountEdtLayout.setError(getResources().getString(R.string.helper_txt_amount));
+
+        } else if (current_odometer.isEmpty() || Integer.parseInt(current_odometer) < 1) {
+            odometerEdtLayout.setError(getResources().getString(R.string.error_txt_odometer));
+        } else {
+            saveBtn.setEnabled(false);
+
+
+            new android.os.Handler().postDelayed(
+                    new Runnable() {
+                        public void run() {
+                            validateFuelEntry(previousFuelData);
+                        }
+                    }, 2000);
+
+
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+
+        if (ConnectivityReceiver.isConnected()) {
+            getLastFuelReading();
+        } else {
+            final Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.saveBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction("OK", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    snackbar.dismiss();
+                }
+            });
+            snackbar.setActionTextColor(getResources().getColor(R.color.app_blue));
+            snackbar.show();
+
+        }
     }
 
     private void getLastFuelReadingCOpy() {
@@ -449,4 +491,11 @@ public class FuelEntryActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        if(isConnected){
+            getLastFuelReading();
+        }
+
+    }
 }

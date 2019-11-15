@@ -49,6 +49,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.ampwork.driverapp.MyApplication;
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.AppUtility;
@@ -64,6 +65,7 @@ import com.ampwork.driverapp.model.BusStops;
 import com.ampwork.driverapp.model.Driver;
 import com.ampwork.driverapp.model.DriverSosData;
 import com.ampwork.driverapp.model.LiveBusDetail;
+import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.ampwork.driverapp.service.LiveTrackingService;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -81,6 +83,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -98,7 +101,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
+public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
@@ -206,12 +209,15 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onClick(View view) {
 
-                LiveBusDetail liveBusDetail = new LiveBusDetail();
-                liveBusDetail.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
-                liveBusDetail.setBusName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
-                liveBusDetail.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
+                if (ConnectivityReceiver.isConnected()) {
 
-                startTrip(liveBusDetail);
+                    LiveBusDetail liveBusDetail = new LiveBusDetail();
+                    liveBusDetail.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
+                    liveBusDetail.setBusName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+                    liveBusDetail.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
+
+                    startTrip(liveBusDetail);
+                }
             }
         });
 
@@ -323,10 +329,15 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         mMap = googleMap;
 
-        if (busStopsArrayList != null) {
-            showBusStatus();
+        if (ConnectivityReceiver.isConnected()) {
+
+            if (busStopsArrayList != null) {
+                showBusStatus();
+            } else {
+                getTripDetail();
+            }
         } else {
-            getTripDetail();
+            showBusStatus();
         }
 
     }
@@ -583,6 +594,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onResume() {
         super.onResume();
+
+        // register connection status listener
+        MyApplication.getInstance().setConnectivityListener(this);
+
         // Register the filter for listening broadcast.
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
@@ -706,70 +721,75 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void stopTrip() {
+
         if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
 
             stopService(liveTrackingIntent);
             //   unbindService(mConnection);
-            mGeoFencing.unRegisterAllGeofences();
+            // mGeoFencing.unRegisterAllGeofences();
 
             timerHandler.removeCallbacks(timerRunnable);
             timerTV.setVisibility(View.GONE);
-
-            final ProgressDialog progressDialog;
-            progressDialog = new ProgressDialog(BusStatusActivity.this);
-            progressDialog.setIndeterminate(true);
-            progressDialog.setMessage("Updating logs...");
-            progressDialog.show();
 
             String trip_finished_time = AppUtility.getCurrentDateTime();
             final BusLog logDetail = getLogData(trip_finished_time);
             Driver driver = getDriverData();
 
+            if (ConnectivityReceiver.isConnected()) {
 
-            // insert log and reset Bustrack table.
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
-            String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
-            String bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
-            String driver_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
-
-
-            Map<String, Object> childUpdates = new HashMap<>();
-            if (Double.parseDouble(logDetail.getTripDistance()) > 0) {
-                // update the logs.
-                String log_key = databaseReference.push().getKey();
-                childUpdates.put(AppConstant.PREF_STR_BUS_LOGS_TB + "/" + institute_key + "/" + bus_key + "/" + log_key, logDetail);
-                childUpdates.put(AppConstant.PREF_STR_DRIVERS_TB + "/" + institute_key + "/" + driver_key, driver);
-            }
-            childUpdates.put(AppConstant.PREF_STR_BUSTRACKING_TB + "/" + institute_key + "/" + bus_key, getLiveBusObject());
+                final ProgressDialog progressDialog;
+                progressDialog = new ProgressDialog(BusStatusActivity.this);
+                progressDialog.setIndeterminate(true);
+                progressDialog.setMessage("Updating logs...");
+                progressDialog.show();
 
 
-            databaseReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
-                @Override
-                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                    progressDialog.dismiss();
-                    preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, false);
-                    preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, false);
+                // insert log and reset Bustrack table.
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+                String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+                String bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
+                String driver_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
 
-                    preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
 
-                    preferencesManager.setStringValue(AppConstant.PREF_BUS_PATH, "");
-                    preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, "");
-                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED, 0.0f);
-                    preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED, 0.0f);
-                    preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, false);
-                    preferencesManager.setBooleanValue(AppConstant.PREF_DEST_REACHED, false);
-                    preferencesManager.setBooleanValue(AppConstant.PREF_TRIP_COMPLETED, false);
-                    preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, "");
-
-                    preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
-                    preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, "");
-
-                    toolbar.setTitle(getResources().getString(R.string.app_title));
-                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-                    showLogDetail(logDetail);
+                Map<String, Object> childUpdates = new HashMap<>();
+                if (Double.parseDouble(logDetail.getTripDistance()) > 0) {
+                    // update the logs.
+                    String log_key = databaseReference.push().getKey();
+                    childUpdates.put(AppConstant.PREF_STR_BUS_LOGS_TB + "/" + institute_key + "/" + bus_key + "/" + log_key, logDetail);
+                    childUpdates.put(AppConstant.PREF_STR_DRIVERS_TB + "/" + institute_key + "/" + driver_key, driver);
                 }
-            });
+                childUpdates.put(AppConstant.PREF_STR_BUSTRACKING_TB + "/" + institute_key + "/" + bus_key, getLiveBusObject());
+
+
+                databaseReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                        progressDialog.dismiss();
+                        preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, false);
+                        preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, false);
+
+                        preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
+
+                        preferencesManager.setStringValue(AppConstant.PREF_BUS_PATH, "");
+                        preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, "");
+                        preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED, 0.0f);
+                        preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED, 0.0f);
+                        preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, false);
+                        preferencesManager.setBooleanValue(AppConstant.PREF_DEST_REACHED, false);
+                        preferencesManager.setBooleanValue(AppConstant.PREF_TRIP_COMPLETED, false);
+                        preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, "");
+
+                        preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
+                        preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, "");
+
+                        toolbar.setTitle(getResources().getString(R.string.app_title));
+                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                        showLogDetail(logDetail);
+                    }
+                });
+
+            }
 
         }
     }
@@ -1249,7 +1269,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 float speed = 0.0f;//(float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
                 String[] strings = timerTV.getText().toString().split(":");
                 float time = Float.parseFloat(strings[0]);
-                if(distance>0){
+                if (distance > 0) {
                     speed = (distance * 60) / time;
                 }
                 speedTV.setVisibility(View.VISIBLE);
@@ -1393,10 +1413,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             }
             fab_bell.setText(count);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-               /* fab_bell.setIconTint(ColorStateList.valueOf(getColor(R.color.app_blue)));
-                fab_bell.setTextColor(getColor(R.color.app_blue));*/
+
                 fab_bell.setTextColor(getColor(R.color.app_blue));
                 fab_bell.setIcon(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_stop_filled));
+                fab_bell.setIconTint(ColorStateList.valueOf(getColor(R.color.app_blue)));
 
             }
             fab_bell.extend(true);
@@ -1404,7 +1424,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         } else {
             fab_bell.shrink(true);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-               /* fab_bell.setIconTint(ColorStateList.valueOf(getColor(R.color.primaryColor)));*/
+                fab_bell.setIconTint(ColorStateList.valueOf(getColor(R.color.primaryColor)));
                 fab_bell.setIcon(ContextCompat.getDrawable(getBaseContext(), R.drawable.ic_stop_default));
             }
             checkNearByStudentsRef.removeEventListener(valueEventListener);
@@ -1458,13 +1478,17 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         if (id == R.id.nav_home) {
             // Handle the camera action
         } else if (id == R.id.nav_notification) {
-            hideNotificationBadge();
-            Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
-            startActivity(notificationIntent);
+            if (ConnectivityReceiver.isConnected()) {
+                hideNotificationBadge();
+                Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
+                startActivity(notificationIntent);
+            }
 
         } else if (id == R.id.nav_trips) {
-            Intent tripListIntent = new Intent(BusStatusActivity.this, TripListActivity.class);
-            startActivity(tripListIntent);
+            if (ConnectivityReceiver.isConnected()) {
+                Intent tripListIntent = new Intent(BusStatusActivity.this, TripListActivity.class);
+                startActivity(tripListIntent);
+            }
 
 
         } else if (id == R.id.nav_busdetail) {
@@ -1472,35 +1496,56 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             startActivity(busDetailIntent);
 
         } else if (id == R.id.nav_settings) {
+
             Intent settingsIntent = new Intent(BusStatusActivity.this, SettingsActivity.class);
             startActivity(settingsIntent);
 
         } else if (id == R.id.nav_logout) {
-            preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, false);
+            if (ConnectivityReceiver.isConnected()) {
+                preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, false);
+                // clear the table
+                DBHelper.init(BusStatusActivity.this);
+                DBHelper.deleteGeofenceShopsTable();
+
+                // update loggedin false.
+                String driverKey = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
+                String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_DRIVERS_TB).child(institute_key);
+                Map<String, Object> objectMap = new HashMap<>();
+                objectMap.put(AppConstant.PREF_STR_LOGGEDIN, false);
+                databaseReference.child(driverKey).updateChildren(objectMap);
 
 
-            // clear the table
-            DBHelper.init(BusStatusActivity.this);
-            DBHelper.deleteGeofenceShopsTable();
-
-            // update loggedin false.
-            String driverKey = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
-            String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_DRIVERS_TB).child(institute_key);
-            Map<String, Object> objectMap = new HashMap<>();
-            objectMap.put(AppConstant.PREF_STR_LOGGEDIN, false);
-            databaseReference.child(driverKey).updateChildren(objectMap);
-
-
-            Intent intent = new Intent(BusStatusActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+                Intent intent = new Intent(BusStatusActivity.this, LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    @Override
+    public void onNetworkConnectionChanged(boolean isConnected) {
+        if (ConnectivityReceiver.isConnected()) {
+            finish();
+            startActivity(getIntent());
+        } else {
+            final Snackbar snackbar = Snackbar
+                    .make(findViewById(R.id.fab_bell), getResources().getString(R.string.no_internet), Snackbar.LENGTH_INDEFINITE);
+            snackbar.setAction("OK", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    snackbar.dismiss();
+                }
+            });
+            snackbar.setActionTextColor(getResources().getColor(R.color.app_blue));
+            snackbar.show();
+
+        }
     }
 
     private class DrawLineAsyncTask extends AsyncTask<String, Void, PolylineOptions> {

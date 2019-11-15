@@ -5,6 +5,9 @@
     <string name="default_notification_channel_id">studentID</string>
     <string name="fcm_message">Notification</string>
 
+
+    <string name="no_internet">No internet avilable. Check your data or wifi connection.</string>
+
     <string name="ss_title">KLE \nBUS TRANSPORTATION</string>
 
     <string name="hint_institute_name">Institute Name</string>
