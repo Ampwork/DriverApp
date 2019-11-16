@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">DriverApp</string>
     <string name="app_title">DriverApp</string>
+    <string name="fg_notification_title">Trackit 360 Driver App</string>
 
     <string name="default_notification_channel_id">studentID</string>
     <string name="fcm_message">Notification</string>

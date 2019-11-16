@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.ampwork.driverapp">
+
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -9,8 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!-- Required if your app targets Android 10 (API level 29) or higher -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- Required if your app targets Android 10 (API level 29) or higher -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
@@ -23,23 +23,27 @@
         android:roundIcon="@mipmap/ic_app_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.SettingsActivity"></activity>
+        <service
+            android:name=".service.OfflineDataUpdateService"
+            android:exported="false"></service>
+
+        <activity android:name=".activity.SettingsActivity" />
         <activity android:name=".activity.ProfileActivity" />
-        <activity android:name=".activity.TripListActivity"
-            android:hardwareAccelerated="true"/>
+        <activity
+            android:name=".activity.TripListActivity"
+            android:hardwareAccelerated="true" />
         <activity android:name=".activity.BusDetailActivity" />
-        <activity android:name=".activity.NotificationActivity"
-            android:hardwareAccelerated="true"/>
+        <activity
+            android:name=".activity.NotificationActivity"
+            android:hardwareAccelerated="true" />
 
         <service
             android:name=".fcm.MyFirebaseMessagingService"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-
         </service>
 
         <activity android:name=".activity.FuelEntryActivity" />
@@ -81,9 +85,7 @@
         <receiver
             android:name=".geofencing.GeofenceBroadcastReceiver"
             android:enabled="true"
-            android:exported="false">
-        </receiver>
-
+            android:exported="false"></receiver>
         <receiver
             android:name=".receiver.ConnectivityReceiver"
             android:enabled="true">

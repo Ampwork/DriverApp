@@ -165,22 +165,22 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         Notification.Builder builder = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             builder = new Notification.Builder(this, channel_id)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("updating bus location..")
+                    .setContentTitle(getString(R.string.fg_notification_title))
+                    .setContentText("This app is using your current location to update bus location.")
                     .setCategory(Notification.CATEGORY_SERVICE)
 
                     //Make this notification ongoing so it can’t be dismissed by the user//
 
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_app_launcher);
+                    .setSmallIcon(R.mipmap.ic_launcher_foreground);
         } else {
             builder = new Notification.Builder(this)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("updating bus location..")
+                    .setContentTitle(getString(R.string.fg_notification_title))
+                    .setContentText("This app is using your current location to update bus location.")
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_app_launcher);
+                    .setSmallIcon(R.mipmap.ic_launcher_foreground);
         }
         startForeground(1, builder.build());
     }
@@ -299,9 +299,9 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
             preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, true);
             isDriving = true;
 
-            if (is_track_enabled) {
+            /*if (is_track_enabled) {
                 updateBusArrivalTiming(depart_time, direction);
-            }
+            }*/
         }
 
 

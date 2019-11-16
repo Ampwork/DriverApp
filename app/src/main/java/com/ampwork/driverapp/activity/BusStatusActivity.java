@@ -203,21 +203,21 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         initView();
 
-        mapFragment.getMapAsync(this);
+
 
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (ConnectivityReceiver.isConnected()) {
+                // if (ConnectivityReceiver.isConnected()) {
 
-                    LiveBusDetail liveBusDetail = new LiveBusDetail();
-                    liveBusDetail.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
-                    liveBusDetail.setBusName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
-                    liveBusDetail.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
+                LiveBusDetail liveBusDetail = new LiveBusDetail();
+                liveBusDetail.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
+                liveBusDetail.setBusName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
+                liveBusDetail.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
 
-                    startTrip(liveBusDetail);
-                }
+                startTrip(liveBusDetail);
+                // }
             }
         });
 
@@ -377,8 +377,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     next_stop_order = "0";
                     next_stop = busStopsArrayList.get(0).getBusStopName();
 
-                    // since the bus is at its start point track is enabled.
-                    preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, true);
                     toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + AppConstant.PREF_STR_DROP);
 
                 } else {
@@ -390,8 +388,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     next_stop_order = String.valueOf(busStopsArrayList.size() - 1);
                     next_stop = busStopsArrayList.get(busStopsArrayList.size() - 1).getBusStopName();
 
-                    // track enable is false , once the bus reaches its start point track will be enabled.
-                    preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, false);
+
                     toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + AppConstant.PREF_STR_PICKUP);
                 }
 
@@ -461,6 +458,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void checkLocationPermission() {
+
         LocationManager lm = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!lm.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             finish();
@@ -598,26 +596,97 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         // register connection status listener
         MyApplication.getInstance().setConnectivityListener(this);
 
-        // Register the filter for listening broadcast.
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
-        intentFilter.addAction(AppConstant.STR_GEOFENCE_FILTER);
-        intentFilter.addAction(AppConstant.STR_NOTIFICATION_FILTER);
 
-        LocalBroadcastManager.getInstance(BusStatusActivity.this).registerReceiver(mBroadcastReceiver, intentFilter);
-        Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
-        Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
+            // Register the filter for listening broadcast.
+            IntentFilter intentFilter = new IntentFilter();
+            intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
+            intentFilter.addAction(AppConstant.STR_GEOFENCE_FILTER);
+            intentFilter.addAction(AppConstant.STR_NOTIFICATION_FILTER);
 
-        navigationView.getMenu().getItem(0).setChecked(true);
+            LocalBroadcastManager.getInstance(BusStatusActivity.this).registerReceiver(mBroadcastReceiver, intentFilter);
+            Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
+            Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
 
-        if (is_drive_started && start_btn_activated) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-            nextStopTv.setVisibility(View.VISIBLE);
-            timerTV.setVisibility(View.VISIBLE);
-            timerHandler.postDelayed(timerRunnable, 0);
-            checkNearByStudentsCount();
+            navigationView.getMenu().getItem(0).setChecked(true);
+
+            if (is_drive_started && start_btn_activated) {
+
+                mapFragment.getMapAsync(this);
+
+                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+                nextStopTv.setVisibility(View.VISIBLE);
+                timerTV.setVisibility(View.VISIBLE);
+                timerHandler.postDelayed(timerRunnable, 0);
+                checkNearByStudentsCount();
+            } else {
+                if(ConnectivityReceiver.isConnected()) {
+                    callUpdateOfflineLogs();
+                }else {
+                    if(mMap==null) {
+                        mapFragment.getMapAsync(BusStatusActivity.this);
+                    }
+                }
+            }
+
+
+    }
+
+    private void callUpdateOfflineLogs() {
+        DBHelper.init(this);
+        ArrayList<BusLog> busLogArrayList = DBHelper.getAllBuslogs();
+        if (busLogArrayList.size() > 0) {
+            updateDraftLogs(busLogArrayList.get(0));
+        }else {
+            if(mMap==null) {
+                mapFragment.getMapAsync(BusStatusActivity.this);
+            }
         }
+    }
 
+    private void updateDraftLogs(final BusLog logDetail) {
+
+        final ProgressDialog progressDialog;
+        progressDialog = new ProgressDialog(BusStatusActivity.this);
+        progressDialog.setIndeterminate(true);
+        progressDialog.setMessage("Updating offline logs... ");
+        progressDialog.show();
+
+        // reset Bustrack table and update driver detail.
+        Driver driver = getDriverData();
+        LiveBusDetail liveBusDetail = getLiveBusObject();
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+        String bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
+        String driver_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
+
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        if (Double.parseDouble(logDetail.getTripDistance()) > 0) {
+            // update the logs.
+            String log_key = databaseReference.push().getKey();
+            childUpdates.put(AppConstant.PREF_STR_BUS_LOGS_TB + "/" + institute_key + "/" + bus_key + "/" + log_key, logDetail);
+            childUpdates.put(AppConstant.PREF_STR_DRIVERS_TB + "/" + institute_key + "/" + driver_key, driver);
+        }
+        childUpdates.put(AppConstant.PREF_STR_BUSTRACKING_TB + "/" + institute_key + "/" + bus_key, liveBusDetail);
+
+
+       /* Map<String, Object> childUpdates = new HashMap<>();
+
+        childUpdates.put(AppConstant.PREF_STR_DRIVERS_TB + "/" + institute_key + "/" + driver_key, driver);
+        childUpdates.put(AppConstant.PREF_STR_BUSTRACKING_TB + "/" + institute_key + "/" + bus_key, liveBusDetail);
+*/
+
+        databaseReference.updateChildren(childUpdates, new DatabaseReference.CompletionListener() {
+            @Override
+            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                progressDialog.dismiss();
+                DBHelper.deleteBuslogsTable(logDetail.getArrivedTime());
+                if(mMap==null) {
+                    mapFragment.getMapAsync(BusStatusActivity.this);
+                }
+
+            }
+        });
     }
 
     @Override
@@ -733,9 +802,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
             String trip_finished_time = AppUtility.getCurrentDateTime();
             final BusLog logDetail = getLogData(trip_finished_time);
-            Driver driver = getDriverData();
+
 
             if (ConnectivityReceiver.isConnected()) {
+
 
                 final ProgressDialog progressDialog;
                 progressDialog = new ProgressDialog(BusStatusActivity.this);
@@ -745,6 +815,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                 // insert log and reset Bustrack table.
+                Driver driver = getDriverData();
                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
                 String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
                 String bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
@@ -789,6 +860,32 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
 
+            } else {
+                //store bus log offline then update.
+                DBHelper.init(this);
+                DBHelper.addBusLog(logDetail);
+
+                preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, false);
+                preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, false);
+
+                preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
+
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_PATH, "");
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_FULL_PATH, "");
+                preferencesManager.setFloatValue(AppConstant.PREF_BUS_DISATNCE_COVERED, 0.0f);
+                preferencesManager.setFloatValue(AppConstant.PREF_BUS_SPEED, 0.0f);
+                preferencesManager.setBooleanValue(AppConstant.PREF_TRACK_ENABLED, false);
+                preferencesManager.setBooleanValue(AppConstant.PREF_DEST_REACHED, false);
+                preferencesManager.setBooleanValue(AppConstant.PREF_TRIP_COMPLETED, false);
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_STOPS_COVERED, "");
+
+                preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
+                preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, "");
+
+                toolbar.setTitle(getResources().getString(R.string.app_title));
+                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+                showLogDetail(logDetail);
             }
 
         }
@@ -1269,7 +1366,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 float speed = 0.0f;//(float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
                 String[] strings = timerTV.getText().toString().split(":");
                 float time = Float.parseFloat(strings[0]);
-                if (distance > 0) {
+                if (distance > 0 && time > 0) {
                     speed = (distance * 60) / time;
                 }
                 speedTV.setVisibility(View.VISIBLE);
@@ -1313,9 +1410,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             Boolean is_trip_completed = preferencesManager.getBooleanValue(AppConstant.PREF_TRIP_COMPLETED);
 
 
+            String direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
             String nextStopName = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP);
             String nextStopOrder = preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER);
             String startPointOrder = preferencesManager.getStringValue(AppConstant.PREF_START_POINT_ID);
+            String startPointName = preferencesManager.getStringValue(AppConstant.PREF_START_POINT);
 
             if (is_track_enabled) {
                 if (is_destination_reached) {
@@ -1333,15 +1432,16 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     if (preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
                         nextStopTv.setText("Current Stop : " + nextStopName);
                     } else {
-                        if (nextStopOrder.equalsIgnoreCase(startPointOrder)) {
-                            nextStopTv.setText("Current Stop : " + nextStopName);
-                        } else {
-                            nextStopTv.setText("Next Stop : " + nextStopName);
-                        }
+                        nextStopTv.setText("Next Stop : " + nextStopName);
                     }
                 }
             } else {
-                nextStopTv.setText("Pick up from " + preferencesManager.getStringValue(AppConstant.PREF_START_POINT));
+                if (direction.equalsIgnoreCase("1")) {
+                    nextStopTv.setText("Pick up from " + startPointName);
+                } else {
+                    nextStopTv.setText("Drop from " + startPointName);
+                }
+
             }
 
             if (preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {

@@ -157,7 +157,13 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                validateUser();
+                if(ConnectivityReceiver.isConnected()){
+                    validateUser();
+                }else {
+                    Snackbar snackbar = Snackbar
+                            .make(view, getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
+                    snackbar.show();
+                }
             }
         });
 
@@ -382,7 +388,8 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
     @Override
     public void onNetworkConnectionChanged(boolean isConnected) {
         if(isConnected){
-            getIntitutesList();
+            finish();
+            startActivity(getIntent());
         }else {
             Snackbar snackbar = Snackbar
                     .make(findViewById(R.id.loginBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);

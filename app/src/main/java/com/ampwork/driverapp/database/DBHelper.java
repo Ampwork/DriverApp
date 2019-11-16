@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusStops;
 import com.ampwork.driverapp.model.Notification;
 
@@ -29,10 +30,26 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String TRIP_TIME = "tripTime";
     private static final String ARRIVAL_TIME = "arrivalTime";
 
-    private static final String TABLE_NOTIFICATIONS = "notificationtb";
+  /*  private static final String TABLE_NOTIFICATIONS = "notificationtb";
     private static final String NOTIFICATION_TITLE = "notification_title";
     private static final String NOTIFICATION_BODY = "notification_body";
-    private static final String NOTIFICATION_DATE = "notification_date";
+    private static final String NOTIFICATION_DATE = "notification_date";*/
+
+    private static final String TABLE_BUS_LOGS = "buslogstb";
+    private static final String BUS_ARRIVED_TIME = "arrivedTime";
+    private static final String BUS_NAME = "busName";
+    private static final String BUS_NUMBER = "busNumber";
+    private static final String BUS_PATH = "busPath";
+    private static final String BUS_LOG_DATE = "date";
+    private static final String DEPART_TIME = "departTime";
+    private static final String TRIP_DIRECTION = "direction";
+    private static final String DRIVER_ID = "driverId";
+    private static final String DRIVER_NAME = "driverName";
+    private static final String ROUTE_NAME = "routeName";
+    private static final String TRIP_COMPLETED = "tripCompleted";
+    private static final String TRIP_DISTANCE = "tripDistance";
+    private static final String TRIP_DURATION = "tripDuration";
+    private static final String BUS_STOPS_COVERED = "busStopsCovered";
 
 
 
@@ -66,13 +83,13 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(getTableGeofenceStopsTable());
-        db.execSQL(getNotificationTable());
+        db.execSQL(getBusLogsTable());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_STOPS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_NOTIFICATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_LOGS);
     }
 
     private String getTableGeofenceStopsTable() {
@@ -88,11 +105,23 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    private String getNotificationTable(){
-        return "CREATE TABLE IF NOT EXISTS " + TABLE_NOTIFICATIONS + " ( "
-                + NOTIFICATION_TITLE + " TEXT NOT NULL, "
-                + NOTIFICATION_BODY + " TEXT NOT NULL, "
-                + NOTIFICATION_DATE + " TEXT )";
+    private String getBusLogsTable() {
+        return "CREATE TABLE IF NOT EXISTS " + TABLE_BUS_LOGS + " ( "
+                + BUS_ARRIVED_TIME + " TEXT NOT NULL, "
+                + BUS_NAME + " TEXT NOT NULL, "
+                + BUS_NUMBER + " TEXT NOT NULL, "
+                + BUS_PATH + " TEXT, "
+                + BUS_LOG_DATE + " TEXT, "
+                + DEPART_TIME + " TEXT, "
+                + TRIP_DIRECTION + " TEXT, "
+                + DRIVER_ID + " TEXT NOT NULL, "
+                + DRIVER_NAME + " TEXT NOT NULL, "
+                + ROUTE_NAME + " TEXT, "
+                + TRIP_COMPLETED + " TEXT, "
+                + TRIP_DISTANCE + " TEXT, "
+                + TRIP_DURATION + " TEXT, "
+                + BUS_STOPS_COVERED + " TEXT )";
+
     }
 
 
@@ -199,7 +228,105 @@ public class DBHelper extends SQLiteOpenHelper {
         return busStops;
     }
 
-    /*Notification Data*/
+    /*BusLogs*/
+    public static void addBusLog(BusLog busLog){
+
+        SQLiteDatabase db = getDatabase();
+        ContentValues cv = new ContentValues();
+
+        Cursor cr = null;
+        cv.put(BUS_ARRIVED_TIME, busLog.getArrivedTime());
+        cv.put(BUS_NAME, busLog.getBusName());
+        cv.put(BUS_NUMBER, busLog.getBusNumber());
+        cv.put(BUS_PATH, busLog.getBusPath());
+        cv.put(BUS_LOG_DATE, busLog.getDate());
+        cv.put(DEPART_TIME, busLog.getDepartTime());
+        cv.put(TRIP_DIRECTION, busLog.getDirection());
+        cv.put(DRIVER_ID, busLog.getDriverId());
+        cv.put(DRIVER_NAME, busLog.getDriverName());
+        cv.put(ROUTE_NAME, busLog.getRouteName());
+        cv.put(TRIP_COMPLETED, busLog.getTripCompleted());
+        cv.put(TRIP_DISTANCE, busLog.getTripDistance());
+        cv.put(TRIP_DURATION, busLog.getTripDuration());
+        cv.put(BUS_STOPS_COVERED, busLog.getBusStopsCovered());
+
+
+
+        cr = getDatabase().query(TABLE_BUS_LOGS, null, BUS_ARRIVED_TIME + " = ?", new String[]{busLog.getArrivedTime()}, null, null, null);
+
+        if (null != cr && cr.moveToFirst()) {
+            db.update(TABLE_BUS_LOGS, cv, STOP_ORDER + " = ?", new String[]{busLog.getArrivedTime()});
+        } else {
+            db.insert(TABLE_BUS_LOGS, null, cv);
+        }
+
+        if (cr != null && !cr.isClosed()) {
+            cr.close();
+        }
+
+    }
+
+    public static void deleteBuslogsTable(String id) {
+        SQLiteDatabase db = getDatabase();
+        db.delete(TABLE_BUS_LOGS, BUS_ARRIVED_TIME + " = ?", new String[]{id});
+    }
+
+    public static ArrayList<BusLog> getAllBuslogs(){
+
+        ArrayList<BusLog> busLogArrayList = new ArrayList<BusLog>();
+
+        SQLiteDatabase db = getDatabase();
+        Cursor cursor = db.query(TABLE_BUS_LOGS, null, null, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                BusLog busLog = new BusLog();
+
+
+                busLog.setArrivedTime(cursor.getString(cursor.getColumnIndex(BUS_ARRIVED_TIME)));
+                busLog.setBusName(cursor.getString(cursor.getColumnIndex(BUS_NAME)));
+                busLog.setBusNumber(cursor.getString(cursor.getColumnIndex(BUS_NUMBER)));
+                busLog.setBusPath(cursor.getString(cursor.getColumnIndex(BUS_PATH)));
+                busLog.setDate(cursor.getString(cursor.getColumnIndex(BUS_LOG_DATE)));
+                busLog.setDepartTime(cursor.getString(cursor.getColumnIndex(DEPART_TIME)));
+                busLog.setDirection(cursor.getString(cursor.getColumnIndex(TRIP_DIRECTION)));
+                busLog.setDriverId(cursor.getString(cursor.getColumnIndex(DRIVER_ID)));
+                busLog.setDriverName(cursor.getString(cursor.getColumnIndex(DRIVER_NAME)));
+                busLog.setRouteName(cursor.getString(cursor.getColumnIndex(ROUTE_NAME)));
+                busLog.setTripCompleted(cursor.getString(cursor.getColumnIndex(TRIP_COMPLETED)));
+                busLog.setTripDistance(cursor.getString(cursor.getColumnIndex(TRIP_DISTANCE)));
+                busLog.setTripDuration(cursor.getString(cursor.getColumnIndex(TRIP_DURATION)));
+                busLog.setBusStopsCovered(cursor.getString(cursor.getColumnIndex(BUS_STOPS_COVERED)));
+
+
+                busLogArrayList.add(busLog);
+
+            } while (cursor.moveToNext());
+
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+
+
+        return busLogArrayList;
+    }
+
+
+
+   /*
+    *//*Notification Data*//*
+
+
+      private String getNotificationTable(){
+        return "CREATE TABLE IF NOT EXISTS " + TABLE_NOTIFICATIONS + " ( "
+                + NOTIFICATION_TITLE + " TEXT NOT NULL, "
+                + NOTIFICATION_BODY + " TEXT NOT NULL, "
+                + NOTIFICATION_DATE + " TEXT )";
+    }
+
+
     public static void addNotification(Notification notification){
 
         SQLiteDatabase db = getDatabase();
@@ -262,5 +389,5 @@ public class DBHelper extends SQLiteOpenHelper {
 
         return notificationArrayList;
     }
-
+*/
 }

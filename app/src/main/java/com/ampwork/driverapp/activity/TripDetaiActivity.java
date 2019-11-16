@@ -36,6 +36,7 @@ import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -141,48 +142,54 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
 
         startBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-
-                tripType = tripTypeAutoComTv.getText().toString();
-                tripTime = departTimeAutoComTv.getText().toString();
-
-                if (tripType.isEmpty()) {
-                    tripTypeAutoComTvLayout.setError(getResources().getString(R.string.triptype_error_text));
-                } else if (tripTime.isEmpty()) {
-                    departTimeAutoComTvLayout.setError(getResources().getString(R.string.triptime_error_text));
-                } else {
-                    if (tripType.equalsIgnoreCase(trip_type_array[0])) {
-                        // if type is pickup set direction to 1.
-                        preferencesManager.setStringValue(AppConstant.PREF_DRIVING_DIRECTION, "1");
-                    } else {
-                        // if type is drop set direction to -1.
-                        preferencesManager.setStringValue(AppConstant.PREF_DRIVING_DIRECTION, "-1");
-                    }
-                    if (isRouteUpdated) {
-                        getBusStopsList();
-                    } else {
-                        DBHelper.init(TripDetaiActivity.this);
-                        busStopsArrayList = DBHelper.getAllBusStops();
-                        String route_id = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID);
-                        if (busStopsArrayList.size() > 0 && busStopsArrayList.get(0).getRouteId().equalsIgnoreCase(route_id)) {
-                            validate();
-                        } else {
-                            getBusStopsList();
-                        }
-                    }
-
+            public void onClick(View view) {
+                if(ConnectivityReceiver.isConnected()){
+                    startTrip();
+                }else {
+                    Snackbar snackbar = Snackbar
+                            .make(view, getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
+                    snackbar.show();
                 }
 
             }
         });
 
-
         //getTripDetail();
         LiveBusDetail liveBusDetail = getIntent().getParcelableExtra("input_data");
         isRouteUpdated = getIntent().getBooleanExtra("input_route", false);
         bindData(liveBusDetail);
+    }
 
+    private void startTrip() {
+        tripType = tripTypeAutoComTv.getText().toString();
+        tripTime = departTimeAutoComTv.getText().toString();
 
+        if (tripType.isEmpty()) {
+            tripTypeAutoComTvLayout.setError(getResources().getString(R.string.triptype_error_text));
+        } else if (tripTime.isEmpty()) {
+            departTimeAutoComTvLayout.setError(getResources().getString(R.string.triptime_error_text));
+        } else {
+            if (tripType.equalsIgnoreCase(trip_type_array[0])) {
+                // if type is pickup set direction to 1.
+                preferencesManager.setStringValue(AppConstant.PREF_DRIVING_DIRECTION, "1");
+            } else {
+                // if type is drop set direction to -1.
+                preferencesManager.setStringValue(AppConstant.PREF_DRIVING_DIRECTION, "-1");
+            }
+            if (isRouteUpdated) {
+                getBusStopsList();
+            } else {
+                DBHelper.init(TripDetaiActivity.this);
+                busStopsArrayList = DBHelper.getAllBusStops();
+                String route_id = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID);
+                if (busStopsArrayList.size() > 0 && busStopsArrayList.get(0).getRouteId().equalsIgnoreCase(route_id)) {
+                    validate();
+                } else {
+                    getBusStopsList();
+                }
+            }
+
+        }
     }
 
     @Override
@@ -223,8 +230,9 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
     }
 
     private void validate() {
+        callNextScreen();
 
-        if (tripType.equalsIgnoreCase(AppConstant.PREF_STR_PICKUP)) {
+       /* if (tripType.equalsIgnoreCase(AppConstant.PREF_STR_PICKUP)) {
             if (tripTime.equalsIgnoreCase("Now")) {
                 checkBusLocation(busStopsArrayList.get(busStopsArrayList.size() - 1));
                 enableTrack();
@@ -246,7 +254,7 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
             }
 
 
-        }
+        }*/
     }
 
     private void enableTrack() {
@@ -316,6 +324,7 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
         String depart_time = AppUtility.getCurrentDateTime();
         preferencesManager.setStringValue(AppConstant.PREF_BUS_DEPART_TIME, depart_time);
 
+         /*
         if (tripTime.equalsIgnoreCase("Now")) {
             // Since the depart time contains both date and time. split and extract only time.
             String[] array = depart_time.split(" ");
@@ -323,7 +332,7 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
             preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, trip_depart_time);
         } else {
             preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, tripTime);
-        }
+        }*/
 
         Intent busTrackIntent = new Intent(TripDetaiActivity.this, BusStatusActivity.class);
         busTrackIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -550,8 +559,9 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
 
     @Override
     public void onNetworkConnectionChanged(boolean isConnected) {
-        if(!isConnected){
+        if (!isConnected) {
             onBackPressed();
         }
     }
+
 }
