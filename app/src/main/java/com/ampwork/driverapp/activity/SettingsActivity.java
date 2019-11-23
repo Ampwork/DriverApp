@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -22,17 +23,23 @@ import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.model.BusLog;
+import com.ampwork.driverapp.model.Fuel;
 import com.ampwork.driverapp.receiver.ConnectivityReceiver;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class SettingsActivity extends AppCompatActivity {
 
@@ -41,15 +48,17 @@ public class SettingsActivity extends AppCompatActivity {
 
     PreferencesManager preferencesManager;
     String pref_old_pwd;
-    String institute_key,driver_key;
+    String institute_key,driver_key,bus_key;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
         preferencesManager = new PreferencesManager(this);
+
         pref_old_pwd = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_PASSWORD);
         institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+        bus_key = preferencesManager.getStringValue(AppConstant.PREF_BUS_TRACKING_KEY);
         driver_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
 
         backImageView = findViewById(R.id.backImageView);
@@ -82,7 +91,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
     }
-
 
     private void showChangePassword() {
 
@@ -225,6 +233,85 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private void getLastFuelReading() {
+
+        final String initial_odometer = preferencesManager.getStringValue(AppConstant.PREF_INITIAL_ODOMETER);
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_FUEL_TB);
+        databaseReference.child(institute_key).child(bus_key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                int i = 0;
+                int total_fuel = 0;
+                int initial_distance = 0;
+
+                if (dataSnapshot.getChildrenCount() > 0) {
+
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+
+                        Fuel fuelData = snapshot.getValue(Fuel.class);
+
+                        int fuel_qty = Integer.parseInt(fuelData.getFuel());
+                        total_fuel = total_fuel + fuel_qty;
+
+                        if (initial_distance == 0) {
+                            int bus_reading = Integer.parseInt(fuelData.getBusReading());
+                            initial_distance = bus_reading;
+                        }
+
+                        if (i == dataSnapshot.getChildrenCount() - 1) {
+                            if (fuelData != null) {
+                                preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, fuelData.getBusReading());
+
+                            }
+                        }
+                        // increment i
+                        i = i + 1;
+                    }
+
+                } else {
+                    preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, initial_odometer);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Log.d("fuelDataReading", "onCancelled: " + databaseError.getMessage().toString());
+            }
+        });
+
+
+    }
+
+    private void getBusLogDetail() {
+
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_BUS_LOGS_TB);
+       // databaseReference = FirebaseDatabase.getInstance().getReference("bus_logs_tb").child(institute_key);
+        databaseReference.child(institute_key).child(bus_key).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                float total_bus_trips = 0;
+                float total_bus_tri_distance = 0;
+                if (dataSnapshot.getChildrenCount() > 0) {
+                    total_bus_trips = dataSnapshot.getChildrenCount();
+                    for(DataSnapshot snapshot : dataSnapshot.getChildren()){
+                        BusLog busLog = snapshot.getValue(BusLog.class);
+                        Float distance = Float.valueOf(busLog.getTripDistance());
+                        total_bus_tri_distance = total_bus_tri_distance + distance;
+                    }
+                    /*  preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, String.valueOf(total_distance));
+                    preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS, String.valueOf(result.size()));*/
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

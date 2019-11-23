@@ -19,32 +19,33 @@ import java.util.List;
 
 public class AppUtility {
 
-    public static String locationToStr(Location location){
+    public static String locationToStr(Location location) {
         String str_location = "";
-        if(location!=null){
-            str_location = String.valueOf(location.getLatitude())+","+String.valueOf(location.getLongitude());
+        if (location != null) {
+            str_location = String.valueOf(location.getLatitude()) + "," + String.valueOf(location.getLongitude());
         }
         return str_location;
     }
 
-    public static LatLng strToLatlng(String location){
+    public static LatLng strToLatlng(String location) {
         String str_location_arr[] = location.split(",");
-        LatLng latLng = new LatLng(Double.parseDouble(str_location_arr[0]),Double.parseDouble(str_location_arr[1]));
+        LatLng latLng = new LatLng(Double.parseDouble(str_location_arr[0]), Double.parseDouble(str_location_arr[1]));
         return latLng;
     }
 
     public static Location strToLocation(String location) {
 
         String str_location_arr[] = location.split(",");
-            LatLng latLng = new LatLng(Double.parseDouble(str_location_arr[0]), Double.parseDouble(str_location_arr[1]));
+        LatLng latLng = new LatLng(Double.parseDouble(str_location_arr[0]), Double.parseDouble(str_location_arr[1]));
 
         Location busLocation = new Location(LocationManager.GPS_PROVIDER);
         busLocation.setLongitude(latLng.longitude);
         busLocation.setLatitude(latLng.latitude);
         return busLocation;
     }
+
     public static double meterDistanceBetweenPoints(float lat_a, float lng_a, float lat_b, float lng_b) {
-        float pk = (float) (180.f/Math.PI);
+        float pk = (float) (180.f / Math.PI);
 
         float a1 = lat_a / pk;
         float a2 = lng_a / pk;
@@ -59,7 +60,7 @@ public class AppUtility {
         return 6366000 * tt;
     }
 
-    public static String getCurrentDateTime(){
+    public static String getCurrentDateTime() {
         try {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -73,11 +74,11 @@ public class AppUtility {
         }
     }
 
-    public static Long covertDateToMili(String date_time){
+    public static Long covertDateToMili(String date_time) {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
         try {
-            Date date  = dateFormat.parse(date_time);
+            Date date = dateFormat.parse(date_time);
             return date.getTime();
         } catch (ParseException e) {
             e.printStackTrace();
@@ -90,7 +91,7 @@ public class AppUtility {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
         String currentTimeStr = simpleDateFormat.format(new Date());
-        Date currentDay = null,inputDay=null;
+        Date currentDay = null, inputDay = null;
         try {
             currentDay = simpleDateFormat.parse(currentTimeStr);
             inputDay = simpleDateFormat.parse(input);
@@ -104,12 +105,12 @@ public class AppUtility {
 
         String differenceStr = String.valueOf(days);
 
-        if(days==0){
+        if (days == 0) {
             differenceStr = "Today";
-        }else if(days==1){
+        } else if (days == 1) {
             differenceStr = "Yesterday";
-        }else {
-            differenceStr = input;
+        } else {
+            differenceStr = getFormattedDate(input);
         }
 
         return differenceStr;
@@ -117,17 +118,48 @@ public class AppUtility {
 
     }
 
+    public static String getFormattedDate(String date) {
 
-    public static String getCurrentTimeStamp(){
-        Long tsLong = System.currentTimeMillis()/1000;
+        Calendar cal = Calendar.getInstance();
+        SimpleDateFormat spf = new SimpleDateFormat("yyyy-MM-dd");
+        Date newDate = null;
+        try {
+            newDate = spf.parse(date);
+            cal.setTime(newDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        int day = cal.get(Calendar.DATE);
+
+        if (day > 10 && day < 21) {
+            return new SimpleDateFormat("MMM d'th', yyyy").format(newDate);
+        } else {
+            switch (day % 10) {
+                case 1:
+                    return new SimpleDateFormat("MMM d'st', yyyy").format(newDate);
+                case 2:
+                    return new SimpleDateFormat("MMM d'nd', yyyy").format(newDate);
+                case 3:
+                    return new SimpleDateFormat("MMM d'rd', yyyy").format(newDate);
+                default:
+                    return new SimpleDateFormat("MMM d'th', yyyy").format(newDate);
+            }
+        }
+
+    }
+
+
+    public static String getCurrentTimeStamp() {
+        Long tsLong = System.currentTimeMillis() / 1000;
         String ts = tsLong.toString();
         return ts;
     }
 
-       public static String getTimeDifference(String stopTimeStr,String startTimeStr) {
+    public static String getTimeDifference(String stopTimeStr, String startTimeStr) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-        Date stopTime = null,startTime=null;
+        Date stopTime = null, startTime = null;
         try {
             stopTime = simpleDateFormat.parse(stopTimeStr);
             startTime = simpleDateFormat.parse(startTimeStr);
@@ -140,7 +172,7 @@ public class AppUtility {
         int hours = (int) ((difference - (1000 * 60 * 60 * 24 * days)) / (1000 * 60 * 60));
         int min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);*/
 
-        String differenceStr = String.valueOf(difference/(1000*60));
+        String differenceStr = String.valueOf(difference / (1000 * 60));
 
         return differenceStr;
 
@@ -148,9 +180,7 @@ public class AppUtility {
     }
 
 
-
-
-    public static String getCurrentDate(){
+    public static String getCurrentDate() {
         try {
 
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -164,7 +194,7 @@ public class AppUtility {
         }
     }
 
-    public static String getArrivalTime(String start_time,String travel_time){
+    public static String getArrivalTime(String start_time, String travel_time) {
         int bus_stand_time = 0; //bus waiting time at bus stop in minutes.
         String myTime = start_time;//"02:50";
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
@@ -178,10 +208,10 @@ public class AppUtility {
 
         //Extract hour and minute from travel time.then add it to starttime.
         String[] timeArray = travel_time.split(":");
-        cal.add(Calendar.HOUR,Integer.parseInt(timeArray[0]));
-        cal.add(Calendar.MINUTE,Integer.parseInt(timeArray[1])+ bus_stand_time);
+        cal.add(Calendar.HOUR, Integer.parseInt(timeArray[0]));
+        cal.add(Calendar.MINUTE, Integer.parseInt(timeArray[1]) + bus_stand_time);
         String arrivalTime = df.format(cal.getTime());
-        return  arrivalTime;
+        return arrivalTime;
 
     }
 
@@ -189,7 +219,7 @@ public class AppUtility {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("HH:mm");
 
         String currentTimeStr = simpleDateFormat.format(new Date());
-        Date currentTime = null,arrivalTime=null;
+        Date currentTime = null, arrivalTime = null;
         try {
             currentTime = simpleDateFormat.parse(currentTimeStr);
             arrivalTime = simpleDateFormat.parse(arrivalTimeStr);
@@ -204,7 +234,7 @@ public class AppUtility {
         int min = (int) (difference - (1000 * 60 * 60 * 24 * days) - (1000 * 60 * 60 * hours)) / (1000 * 60);
 
         /*String differenceStr = hours + "," + min;*/
-        String differenceStr = String.valueOf(difference/(1000*60));
+        String differenceStr = String.valueOf(difference / (1000 * 60));
 
         return differenceStr;
 
@@ -238,19 +268,19 @@ public class AppUtility {
         return isInBackground;
     }
 
-    public static String getNextTripTime(String tripSchedules){
+    public static String getNextTripTime(String tripSchedules) {
 
         String nextTripTime = "";
         String[] trip_times = tripSchedules.split(",");
-        for (int i =0; i<trip_times.length;i++){
+        for (int i = 0; i < trip_times.length; i++) {
             int time_diff = Integer.parseInt(getTimeDifferenceMinutes(trip_times[i]));
-            if(time_diff<=0){
+            if (time_diff <= 0) {
                 nextTripTime = trip_times[i];
                 break;
             }
         }
 
-        if(nextTripTime.isEmpty()){
+        if (nextTripTime.isEmpty()) {
             nextTripTime = trip_times[0];
         }
         return nextTripTime;

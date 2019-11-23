@@ -105,7 +105,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
-    private LinearLayout busDistanceLayout;
+    private LinearLayout profileDataLayout,busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
     NavigationView navigationView;
     BadgeDrawerToggle badgeDrawerToggle;
@@ -203,6 +203,13 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         initView();
 
+        profileDataLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent profileIntent = new Intent(BusStatusActivity.this, ProfileActivity.class);
+                startActivity(profileIntent);
+            }
+        });
 
 
         startBtn.setOnClickListener(new View.OnClickListener() {
@@ -299,6 +306,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         // NAvigation Header UI
         View headerView = navigationView.getHeaderView(0);
         ImageView imageView = headerView.findViewById(R.id.imageView);
+        profileDataLayout = headerView.findViewById(R.id.profileDataLayout);
         navHeaderTitleTv = headerView.findViewById(R.id.navHeaderTitleTv);
         navHeaderSubTitleTv = headerView.findViewById(R.id.navHeaderSubTitleTv);
         navHeaderSubTitle2Tv = headerView.findViewById(R.id.navHeaderSubTitle2Tv);
@@ -330,12 +338,12 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         mMap = googleMap;
 
         if (ConnectivityReceiver.isConnected()) {
-
             if (busStopsArrayList != null) {
                 showBusStatus();
             } else {
                 getTripDetail();
             }
+
         } else {
             showBusStatus();
         }
@@ -547,7 +555,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                         preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, mileage);
 
 
-                        preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, false);
+                        preferencesManager.setBooleanValue(AppConstant.PREF_DRIVER_SOS, (Boolean) object.get(AppConstant.PREF_DRIVER_SOS));
 
                         String route_id = preferencesManager.getStringValue(AppConstant.PREF_ROUTE_ID);
                         String assigned_route_id = object.get(AppConstant.PREF_ROUTE_ID).toString();
@@ -597,36 +605,36 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         MyApplication.getInstance().setConnectivityListener(this);
 
 
-            // Register the filter for listening broadcast.
-            IntentFilter intentFilter = new IntentFilter();
-            intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
-            intentFilter.addAction(AppConstant.STR_GEOFENCE_FILTER);
-            intentFilter.addAction(AppConstant.STR_NOTIFICATION_FILTER);
+        // Register the filter for listening broadcast.
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(AppConstant.STR_LOCATION_FILTER);
+        intentFilter.addAction(AppConstant.STR_GEOFENCE_FILTER);
+        intentFilter.addAction(AppConstant.STR_NOTIFICATION_FILTER);
 
-            LocalBroadcastManager.getInstance(BusStatusActivity.this).registerReceiver(mBroadcastReceiver, intentFilter);
-            Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
-            Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
+        LocalBroadcastManager.getInstance(BusStatusActivity.this).registerReceiver(mBroadcastReceiver, intentFilter);
+        Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
+        Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
 
-            navigationView.getMenu().getItem(0).setChecked(true);
+        navigationView.getMenu().getItem(0).setChecked(true);
 
-            if (is_drive_started && start_btn_activated) {
+        if (is_drive_started && start_btn_activated) {
 
-                mapFragment.getMapAsync(this);
+            mapFragment.getMapAsync(this);
 
-                getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-                nextStopTv.setVisibility(View.VISIBLE);
-                timerTV.setVisibility(View.VISIBLE);
-                timerHandler.postDelayed(timerRunnable, 0);
-                checkNearByStudentsCount();
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            nextStopTv.setVisibility(View.VISIBLE);
+            timerTV.setVisibility(View.VISIBLE);
+            timerHandler.postDelayed(timerRunnable, 0);
+            checkNearByStudentsCount();
+        } else {
+            if (ConnectivityReceiver.isConnected()) {
+                callUpdateOfflineLogs();
             } else {
-                if(ConnectivityReceiver.isConnected()) {
-                    callUpdateOfflineLogs();
-                }else {
-                    if(mMap==null) {
-                        mapFragment.getMapAsync(BusStatusActivity.this);
-                    }
+                if (mMap == null) {
+                    mapFragment.getMapAsync(BusStatusActivity.this);
                 }
             }
+        }
 
 
     }
@@ -636,8 +644,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         ArrayList<BusLog> busLogArrayList = DBHelper.getAllBuslogs();
         if (busLogArrayList.size() > 0) {
             updateDraftLogs(busLogArrayList.get(0));
-        }else {
-            if(mMap==null) {
+        } else {
+            if (mMap == null) {
                 mapFragment.getMapAsync(BusStatusActivity.this);
             }
         }
@@ -681,7 +689,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
                 progressDialog.dismiss();
                 DBHelper.deleteBuslogsTable(logDetail.getArrivedTime());
-                if(mMap==null) {
+                if (mMap == null) {
                     mapFragment.getMapAsync(BusStatusActivity.this);
                 }
 
@@ -1363,11 +1371,13 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     busDistanceLayout.setVisibility(View.VISIBLE);
                     busDistanceTv.setText(String.format("%.2f", distance));
                 }
-                float speed = 0.0f;//(float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
-                String[] strings = timerTV.getText().toString().split(":");
-                float time = Float.parseFloat(strings[0]);
-                if (distance > 0 && time > 0) {
-                    speed = (distance * 60) / time;
+                float speed = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
+                if(speed == 0 ) {
+                    String[] strings = timerTV.getText().toString().split(":");
+                    float time = Float.parseFloat(strings[0]);
+                    if (distance > 0 && time > 0) {
+                        speed = (distance * 60) / time;
+                    }
                 }
                 speedTV.setVisibility(View.VISIBLE);
                 speedTV.setText("Speed : " + String.format("%.2f", speed) + " km/h");
@@ -1602,7 +1612,18 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         } else if (id == R.id.nav_logout) {
             if (ConnectivityReceiver.isConnected()) {
+
                 preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, false);
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIPS, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "0");
+                preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, "0");
+
+
                 // clear the table
                 DBHelper.init(BusStatusActivity.this);
                 DBHelper.deleteGeofenceShopsTable();

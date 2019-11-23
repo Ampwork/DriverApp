@@ -346,7 +346,7 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
         final ProgressDialog progressDialog;
         progressDialog = new ProgressDialog(TripDetaiActivity.this);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Please wait...");
+        progressDialog.setMessage("Loading Busstops list.");
         progressDialog.show();
 
         String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
@@ -377,8 +377,9 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                progressDialog.show();
+                progressDialog.dismiss();
             }
+
         });
     }
 
@@ -417,76 +418,6 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
                 tripDistanceTv.setText("00");
             }
         });
-    }
-
-    private void getFuelLIstData() {
-        String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("fuel_tb");
-
-        databaseReference.child(institute_key).orderByChild(AppConstant.PREF_BUS_NUMBER).equalTo(bus_number).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int total_fuel = 0;
-                int mileage = 00;
-                int i = 0;
-                if (dataSnapshot.getChildrenCount() > 0) {
-
-                    HashMap<String, List<HashMap<String, BusLog>>> result = (HashMap<String, List<HashMap<String, BusLog>>>) dataSnapshot.getValue();
-
-                    if (result != null) {
-                        //  Map<String, Fuel> object = result.get(i);
-                        Set<String> keyset = result.keySet();
-                        String key = null;
-                        for (String keyName : keyset) {
-                            key = keyName;
-                            Map<String, Object> fuelData = (Map<String, Object>) result.get(key);
-
-                            int fuel_qty = Integer.parseInt(fuelData.get("fuel").toString());
-                            total_fuel = total_fuel + fuel_qty;
-
-                            if (i == result.size() - 1) {
-                                if (fuelData != null) {
-                                    final_odometer = fuelData.get("busReading").toString();
-                                    preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, final_odometer);
-
-                                }
-                            }
-                            // increment i
-                            i = i + 1;
-                        }
-
-
-                        busReadingTv.setText(final_odometer);
-                        if (mileage > 0) {
-                            preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, String.valueOf(mileage));
-                            mileageTv.setText(String.valueOf(mileage));
-                        } else {
-                            preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "00");
-                            mileageTv.setText("00");
-                        }
-
-                    }
-
-
-                } else {
-
-                    preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, initial_odometer);
-                    preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "00");
-                    busReadingTv.setText("00");
-                    mileageTv.setText("00");
-
-                }
-
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.d(TAG, "onCancelled: " + databaseError.getMessage().toString());
-            }
-        });
-
-
     }
 
 

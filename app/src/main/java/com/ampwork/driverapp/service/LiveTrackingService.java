@@ -105,6 +105,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
                     /*Calculate Bus Speed*/
                     float speed = 0;
+                    speed = location.getSpeed();
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         speed = location.getSpeedAccuracyMetersPerSecond() * 18 / 5;
                     } else {
@@ -166,7 +167,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             builder = new Notification.Builder(this, channel_id)
                     .setContentTitle(getString(R.string.fg_notification_title))
-                    .setContentText("This app is using your current location to update bus location.")
+                    .setContentText(getResources().getString(R.string.fg_text))
                     .setCategory(Notification.CATEGORY_SERVICE)
 
                     //Make this notification ongoing so it can’t be dismissed by the user//
@@ -177,7 +178,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         } else {
             builder = new Notification.Builder(this)
                     .setContentTitle(getString(R.string.fg_notification_title))
-                    .setContentText("This app is using your current location to update bus location.")
+                    .setContentText(getResources().getString(R.string.fg_text))
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
                     .setSmallIcon(R.mipmap.ic_launcher_foreground);

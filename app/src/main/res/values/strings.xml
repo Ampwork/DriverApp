@@ -6,7 +6,7 @@
     <string name="default_notification_channel_id">studentID</string>
     <string name="fcm_message">Notification</string>
 
-
+    <string name="fg_text">This app is using driver current location to update bus location.</string>
     <string name="no_internet">No internet avilable. Check your data or wifi connection.</string>
 
     <string name="ss_title">KLE \nBUS TRANSPORTATION</string>
