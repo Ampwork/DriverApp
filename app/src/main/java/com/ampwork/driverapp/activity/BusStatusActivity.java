@@ -105,7 +105,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
-    private LinearLayout profileDataLayout,busDistanceLayout;
+    private LinearLayout profileDataLayout, busDistanceLayout;
     ExtendedFloatingActionButton fab_bell, fab_fuel;
     NavigationView navigationView;
     BadgeDrawerToggle badgeDrawerToggle;
@@ -236,7 +236,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     fab_bell.shrink(true);
                     stopTrip();
                 } else if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
-                    final AlertDialog dialog = new MaterialAlertDialogBuilder(BusStatusActivity.this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
+                    final AlertDialog dialog = new MaterialAlertDialogBuilder(BusStatusActivity.this, R.style.AlertDialogTheme)
                             .setTitle("You want to stop the trip?")
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -802,6 +802,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
 
             stopService(liveTrackingIntent);
+
+
             //   unbindService(mConnection);
             // mGeoFencing.unRegisterAllGeofences();
 
@@ -810,6 +812,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
             String trip_finished_time = AppUtility.getCurrentDateTime();
             final BusLog logDetail = getLogData(trip_finished_time);
+            String stopsCovered = preferencesManager.getStringValue(AppConstant.PREF_BUS_STOPS_COVERED);
 
 
             if (ConnectivityReceiver.isConnected()) {
@@ -831,7 +834,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
 
                 Map<String, Object> childUpdates = new HashMap<>();
-                if (Double.parseDouble(logDetail.getTripDistance()) > 0) {
+                if (stopsCovered.length() > 0) {
                     // update the logs.
                     String log_key = databaseReference.push().getKey();
                     childUpdates.put(AppConstant.PREF_STR_BUS_LOGS_TB + "/" + institute_key + "/" + bus_key + "/" + log_key, logDetail);
@@ -870,8 +873,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
             } else {
                 //store bus log offline then update.
-                DBHelper.init(this);
-                DBHelper.addBusLog(logDetail);
+                if (stopsCovered.length() > 0) {
+                    DBHelper.init(this);
+                    DBHelper.addBusLog(logDetail);
+                }
 
                 preferencesManager.setBooleanValue(AppConstant.PREF_IS_DRIVING, false);
                 preferencesManager.setBooleanValue(AppConstant.PREF_BTN_START, false);
@@ -933,27 +938,27 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         TextView stopsCoveredTv = view.findViewById(R.id.stopsCoveredTv);
         Button successBtn = view.findViewById(R.id.successBtn);
 
-        routeNameTv.setText("RouteName : " + logDetail.getRouteName());
+        routeNameTv.setText(": " + logDetail.getRouteName());
         if (logDetail.getDirection().equalsIgnoreCase("1")) {
-            tripTypeTv.setText("Trip Type : " + AppConstant.PREF_STR_PICKUP);
+            tripTypeTv.setText(": " + AppConstant.PREF_STR_PICKUP);
         } else {
-            tripTypeTv.setText("Trip Type : " + AppConstant.PREF_STR_DROP);
+            tripTypeTv.setText(": " + AppConstant.PREF_STR_DROP);
         }
-        tripDepartTv.setText("Trip Started Time : " + logDetail.getDepartTime());
-        tripArrivalTv.setText("Trip Ended Time : " + logDetail.getArrivedTime());
+        tripDepartTv.setText(": " + logDetail.getDepartTime());
+        tripArrivalTv.setText(": " + logDetail.getArrivedTime());
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
-            tripstausTv.setText("Trip Completed : " + "Yes");
-            stopsCoveredTv.setText("All stops covered : Yes");
+            tripstausTv.setText(": " + "Yes");
+            stopsCoveredTv.setText(": Yes");
         } else if (logDetail.getTripCompleted().equalsIgnoreCase("0")) {
-            tripstausTv.setText("Trip Completed : " + "Yes");
-            stopsCoveredTv.setText("All stops covered : No");
+            tripstausTv.setText(": " + "Yes");
+            stopsCoveredTv.setText(": No");
         } else if (logDetail.getTripCompleted().equalsIgnoreCase("-1")) {
-            tripstausTv.setText("Trip Completed : " + "No");
-            stopsCoveredTv.setText("All stops covered : No");
+            tripstausTv.setText(": " + "No");
+            stopsCoveredTv.setText(": No");
         }
 
-        tripDistanceTv.setText("Distance Covered : " + logDetail.getTripDistance() + " kms");
-        tripDurationTv.setText("Time Taken : " + logDetail.getTripDuration() + " minutes");
+        tripDistanceTv.setText(": " + logDetail.getTripDistance() + " kms");
+        tripDurationTv.setText(": " + logDetail.getTripDuration() + " minutes");
 
 
         final AlertDialog dialog = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
@@ -1262,7 +1267,13 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
                                 Intent trackingIntent = new Intent(BusStatusActivity.this, LiveTrackingService.class);
                                 trackingIntent.putParcelableArrayListExtra("bus_stops_list", busStopsArrayList);
-                                startService(trackingIntent);
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    startForegroundService(trackingIntent);
+                                } else {
+                                    startService(trackingIntent);
+                                }
+
                                 // bindService(liveTrackingIntent, mConnection, Context.BIND_AUTO_CREATE);
 
                               /*  // Register Geofence
@@ -1372,15 +1383,19 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     busDistanceTv.setText(String.format("%.2f", distance));
                 }
                 float speed = (float) (preferencesManager.getFloatValue(AppConstant.PREF_BUS_SPEED));
-                if(speed == 0 ) {
+                /*if(speed == 0 ) {
                     String[] strings = timerTV.getText().toString().split(":");
                     float time = Float.parseFloat(strings[0]);
                     if (distance > 0 && time > 0) {
                         speed = (distance * 60) / time;
                     }
+                }*/
+                if (speed > 0) {
+                    speedTV.setVisibility(View.VISIBLE);
+                    speedTV.setText("Speed : " + String.format("%.2f", speed) + " km/h");
+                } else {
+                    speedTV.setVisibility(View.GONE);
                 }
-                speedTV.setVisibility(View.VISIBLE);
-                speedTV.setText("Speed : " + String.format("%.2f", speed) + " km/h");
 
             }
 
@@ -1611,42 +1626,62 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             startActivity(settingsIntent);
 
         } else if (id == R.id.nav_logout) {
-            if (ConnectivityReceiver.isConnected()) {
-
-                preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, false);
-                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIPS, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "0");
-                preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, "0");
-
-
-                // clear the table
-                DBHelper.init(BusStatusActivity.this);
-                DBHelper.deleteGeofenceShopsTable();
-
-                // update loggedin false.
-                String driverKey = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
-                String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_DRIVERS_TB).child(institute_key);
-                Map<String, Object> objectMap = new HashMap<>();
-                objectMap.put(AppConstant.PREF_STR_LOGGEDIN, false);
-                databaseReference.child(driverKey).updateChildren(objectMap);
-
-
-                Intent intent = new Intent(BusStatusActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            if(preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)){
+                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme);
+                materialAlertDialogBuilder.setTitle("Please complete the trip.");
+                materialAlertDialogBuilder.setCancelable(false);
+                materialAlertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                       dialog.dismiss();
+                    }
+                });
+                materialAlertDialogBuilder.show();
+            }else {
+                logout();
             }
+
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
 
         return true;
+    }
+
+    private void logout() {
+        if (ConnectivityReceiver.isConnected()) {
+
+            preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, false);
+            preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIPS, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_TRIP_DISTANCE, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIPS, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_BUS_TOTAL_DISTANCE, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_MILEAGE, "0");
+            preferencesManager.setStringValue(AppConstant.PREF_BUS_CURRENT_ODOMETER, "0");
+
+
+            // clear the table
+            DBHelper.init(BusStatusActivity.this);
+            DBHelper.deleteGeofenceShopsTable();
+
+            // update loggedin false.
+            String driverKey = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
+            String institute_key = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE_KEY);
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(AppConstant.PREF_STR_DRIVERS_TB).child(institute_key);
+            Map<String, Object> objectMap = new HashMap<>();
+            objectMap.put(AppConstant.PREF_STR_LOGGEDIN, false);
+            databaseReference.child(driverKey).updateChildren(objectMap);
+
+
+            Toast.makeText(this, "Logged out successfully.", Toast.LENGTH_SHORT).show();
+
+            Intent intent = new Intent(BusStatusActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 
     @Override

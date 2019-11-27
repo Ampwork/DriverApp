@@ -6,7 +6,7 @@ public class AppConstant {
 
     public static String PREF_IS_LOGGEDIN = "isloggedin";
 
-    public static int PREF_BUS_DISPLACEMENT = 20;
+    public static int PREF_BUS_DISPLACEMENT = 50;
     public static int GEOFENCE_RADIUS = 100;
     public static String PREF_BUS_DISATNCE_COVERED = "distanceCovered";// Float
     public static String PREF_BUS_LAST_LOCATION = "lastLocation";

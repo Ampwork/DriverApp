@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
@@ -27,15 +27,15 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/messageTv"
-                android:layout_alignParentRight="true"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:maxLines="3"
-                android:ellipsize="end"
-                android:text="Notification"/>
+        <TextView
+            android:id="@+id/messageTv"
+            android:layout_alignParentRight="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:text="Notification"/>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -46,6 +46,8 @@
                     android:id="@+id/dateTv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/small_ts"
+                    android:textFontWeight="200"
                     tools:text="day" />
 
                 <TextView
@@ -53,6 +55,8 @@
                     android:layout_alignParentRight="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/small_ts"
+                    android:textFontWeight="200"
                     tools:text="time" />
 
 
@@ -68,4 +72,4 @@
 
     </RelativeLayout>
 
-</com.google.android.material.card.MaterialCardView>
+</RelativeLayout>

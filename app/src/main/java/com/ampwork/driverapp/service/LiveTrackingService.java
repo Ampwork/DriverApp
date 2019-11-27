@@ -174,14 +174,14 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher_foreground);
+                    .setSmallIcon(R.mipmap.ic_app_launcher);
         } else {
             builder = new Notification.Builder(this)
                     .setContentTitle(getString(R.string.fg_notification_title))
                     .setContentText(getResources().getString(R.string.fg_text))
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
-                    .setSmallIcon(R.mipmap.ic_launcher_foreground);
+                    .setSmallIcon(R.mipmap.ic_app_launcher);
         }
         startForeground(1, builder.build());
     }
@@ -220,7 +220,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         //Specify how often your app should request the device’s location//
         locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS);
         locationRequest.setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS);
-        locationRequest.setSmallestDisplacement(0/*AppConstant.PREF_BUS_DISPLACEMENT*/);
+        locationRequest.setSmallestDisplacement(0);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);

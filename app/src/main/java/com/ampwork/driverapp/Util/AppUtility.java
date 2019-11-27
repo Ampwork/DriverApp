@@ -3,9 +3,12 @@ package com.ampwork.driverapp.Util;
 import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
+import android.widget.Toast;
 
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
@@ -18,6 +21,16 @@ import java.util.Date;
 import java.util.List;
 
 public class AppUtility {
+
+    public static void callBrowserIntent(Context ctx, String url) {
+        if (url != null && url.length() > 0) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            ctx.startActivity(browserIntent);
+        }else {
+            Toast.makeText(ctx, "Webpage not available.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
 
     public static String locationToStr(Location location) {
         String str_location = "";

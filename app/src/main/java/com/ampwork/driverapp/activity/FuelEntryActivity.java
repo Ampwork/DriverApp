@@ -55,7 +55,8 @@ public class FuelEntryActivity extends AppCompatActivity implements Connectivity
             current_odometer, initial_odometer, total_distance;
     String pref_total_fuel, pref_total_distance, institute_key, bus_key;
     private Fuel previousFuelData, currentFuelData;
-    int diff = 0, initial_distance = 0, total_fuel = 0;
+    int diff = 0, initial_distance = 0;
+    double total_fuel = 0;
 
 
     PreferencesManager preferencesManager;
@@ -172,25 +173,22 @@ public class FuelEntryActivity extends AppCompatActivity implements Connectivity
         current_odometer = odometerEdt.getText().toString();
         date = AppUtility.getCurrentDate();
 
-        if (fuel_qty.isEmpty() || Integer.parseInt(fuel_qty) < 1) {
+        if (fuel_qty.isEmpty() || Double.parseDouble(fuel_qty) < 1) {
             fuelQtyEdtLayout.setError(getResources().getString(R.string.helper_txt_fuel));
 
-        } else if (amount.isEmpty() || Integer.parseInt(amount) < 1) {
+        } else if (amount.isEmpty() || Double.parseDouble(amount) < 1) {
             amountEdtLayout.setError(getResources().getString(R.string.helper_txt_amount));
 
         } else if (current_odometer.isEmpty() || Integer.parseInt(current_odometer) < 1) {
             odometerEdtLayout.setError(getResources().getString(R.string.error_txt_odometer));
         } else {
             saveBtn.setEnabled(false);
-
-
             new android.os.Handler().postDelayed(
                     new Runnable() {
                         public void run() {
                             validateFuelEntry(previousFuelData);
                         }
                     }, 2000);
-
 
         }
     }
@@ -281,7 +279,7 @@ public class FuelEntryActivity extends AppCompatActivity implements Connectivity
 
                         Fuel fuelData = snapshot.getValue(Fuel.class);
 
-                        int fuel_qty = Integer.parseInt(fuelData.getFuel());
+                        Double fuel_qty = Double.parseDouble(fuelData.getFuel());
                         total_fuel = total_fuel + fuel_qty;
 
                         if (initial_distance == 0) {
@@ -391,8 +389,8 @@ public class FuelEntryActivity extends AppCompatActivity implements Connectivity
             saveCurrentFuelEntry();
         } else {
 
-            MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog);
-            materialAlertDialogBuilder.setTitle("Current reading is less than previous reading. \n Are you sure to proceed next ?");
+            MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme);
+            materialAlertDialogBuilder.setTitle("Is new reading is less than previous reading?");
             materialAlertDialogBuilder.setCancelable(false);
             materialAlertDialogBuilder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
@@ -458,9 +456,11 @@ public class FuelEntryActivity extends AppCompatActivity implements Connectivity
     private void callNextScreen() {
 
 
-        double mileage = Math.round((((Double.parseDouble(total_distance) - initial_distance) / total_fuel) * 100.0) / 100.0);
-
-        pref_total_fuel = String.valueOf(total_fuel + Integer.parseInt(fuel_qty));
+        double mileage = 0;
+        if(initial_distance>0) {
+             mileage = Math.round((((Double.parseDouble(total_distance) - initial_distance) / total_fuel) * 100.0) / 100.0);
+        }
+        pref_total_fuel = String.valueOf(total_fuel + Double.parseDouble(fuel_qty));
         pref_total_distance = total_distance;
 
         preferencesManager.setStringValue(AppConstant.PREF_TOTAL_FUEL, pref_total_fuel);

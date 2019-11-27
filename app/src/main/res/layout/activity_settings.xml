@@ -74,6 +74,39 @@
             android:alpha="0.2"
             android:background="@color/app_blue"></View>
 
+        <TextView
+            android:id="@+id/privacyTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/layout_margin"
+            android:text="@string/privacy_policy"
+            android:textColor="@color/secondaryTextColor"
+            android:textFontWeight="300"
+            android:textSize="@dimen/subtitle_ts" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/app_blue"></View>
+
+
+        <TextView
+            android:id="@+id/termConditionTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/layout_margin"
+            android:text="@string/t_and_c"
+            android:textColor="@color/secondaryTextColor"
+            android:textFontWeight="300"
+            android:textSize="@dimen/subtitle_ts" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:alpha="0.2"
+            android:background="@color/app_blue"></View>
+
     </LinearLayout>
 
 

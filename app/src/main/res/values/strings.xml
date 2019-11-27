@@ -61,10 +61,10 @@
     <string name="triptype_error_text">Select Trip Type</string>
 
     <!--Login-->
-    <string name="lg_title">Login</string>
+    <string name="lg_title">Driver App</string>
     <string name="username_hint">Username</string>
     <string name="pwd_hint">Password</string>
-    <string name="lg_loginbtn">Login</string>
+    <string name="login_btn">Login</string>
 
 
     <!--Home Screen-->
@@ -112,6 +112,8 @@
     <!--Settings-->
     <string name="user_profile">Profile</string>
     <string name="change_pwd">Change Password</string>
+    <string name="privacy_policy">Privacy and Policy</string>
+    <string name="t_and_c">Terms and Conditions</string>
 
     <!-- Error strings -->
     <string name="geofence_not_available">Geofence service is not available now</string>

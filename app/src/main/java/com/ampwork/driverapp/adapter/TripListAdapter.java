@@ -102,33 +102,34 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
         TextView tripDurationTv = view.findViewById(R.id.tripDurationTv);
         TextView stopsCoveredTv = view.findViewById(R.id.stopsCoveredTv);
         Button successBtn = view.findViewById(R.id.successBtn);
+        successBtn.setVisibility(View.GONE);
 
-        routeNameTv.setText("RouteName : " + logDetail.getRouteName());
+        routeNameTv.setText(": " + logDetail.getRouteName());
         if (logDetail.getDirection().equalsIgnoreCase("1")) {
-            tripTypeTv.setText("Trip Type : " + AppConstant.PREF_STR_PICKUP);
+            tripTypeTv.setText(": " + AppConstant.PREF_STR_PICKUP);
         } else {
-            tripTypeTv.setText("Trip Type : " + AppConstant.PREF_STR_DROP);
+            tripTypeTv.setText(": " + AppConstant.PREF_STR_DROP);
         }
-        tripDepartTv.setText("Trip Started Time : " + logDetail.getDepartTime());
-        tripArrivalTv.setText("Trip Ended Time : " + logDetail.getArrivedTime());
+        tripDepartTv.setText(": " + logDetail.getDepartTime());
+        tripArrivalTv.setText(": " + logDetail.getArrivedTime());
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
-            tripstausTv.setText("Trip Completed : " + "Yes");
-            stopsCoveredTv.setText("All stops covered : Yes");
+            tripstausTv.setText(": " + "Yes");
+            stopsCoveredTv.setText(": Yes");
         } else if (logDetail.getTripCompleted().equalsIgnoreCase("0")) {
-            tripstausTv.setText("Trip Completed : " + "Yes");
-            stopsCoveredTv.setText("All stops covered : No");
+            tripstausTv.setText(": " + "Yes");
+            stopsCoveredTv.setText(": No");
         } else if (logDetail.getTripCompleted().equalsIgnoreCase("-1")) {
-            tripstausTv.setText("Trip Completed : " + "No");
-            stopsCoveredTv.setText("All stops covered : No");
+            tripstausTv.setText(": " + "No");
+            stopsCoveredTv.setText(": No");
         }
 
-        tripDistanceTv.setText("Distance Covered : " + logDetail.getTripDistance() + " kms");
-        tripDurationTv.setText("Time Taken : " + logDetail.getTripDuration() + " minutes");
+        tripDistanceTv.setText(": " + logDetail.getTripDistance() + " kms");
+        tripDurationTv.setText(": " + logDetail.getTripDuration() + " minutes");
 
 
         final AlertDialog dialog = new MaterialAlertDialogBuilder(context, R.style.ThemeOverlay_MaterialComponents_MaterialAlertDialog)
                 .setView(view)
-                .setCancelable(false)
+                .setCancelable(true)
                 .show();
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 

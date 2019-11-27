@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:elevation="@dimen/card_elevation"
@@ -31,79 +32,207 @@
             android:orientation="vertical"
             android:padding="@dimen/layout_margin">
 
-            <TextView
-                android:id="@+id/routeNameTv"
-                android:layout_width="wrap_content"
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Route Name : BVBCET"
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <TextView
-                android:id="@+id/tripTypeTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Type : Drop"
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Route Name" />
 
-            <TextView
-                android:id="@+id/tripDepartTv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Departure: 12.03 "
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                <TextView
+                    android:id="@+id/routeNameTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor"
+                    tool:text="Route Name : BVBCET" />
+
+            </LinearLayout>
 
 
-            <TextView
-                android:id="@+id/tripArrivalTv"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Arrival: 12.15 "
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <TextView
-                android:id="@+id/tripstausTv"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Type" />
+
+                <TextView
+                    android:id="@+id/tripTypeTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text=" : Drop"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Completed : Yes "
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
 
-            <TextView
-                android:id="@+id/stopsCoveredTv"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Start time" />
+
+                <TextView
+                    android:id="@+id/tripDepartTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Departure: 12.03 "
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/layout_margin"
-                android:text="All stops covered: Yes "
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="End time" />
+
+                <TextView
+                    android:id="@+id/tripArrivalTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Arrival: 12.15 "
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
 
 
-            <TextView
-                android:id="@+id/tripDistanceTv"
-                android:layout_width="wrap_content"
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Distance: 12.03 KM"
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Completed" />
+
+                <TextView
+                    android:id="@+id/tripstausTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Completed : Yes "
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
 
 
-            <TextView
-                android:id="@+id/tripDurationTv"
-                android:layout_width="wrap_content"
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/layout_margin"
-                android:text="Trip Duration: 12 minutes"
-                android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
-                android:textColor="@color/secondaryTextColor" />
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="All stops covered" />
+
+                <TextView
+                    android:id="@+id/stopsCoveredTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="All stops covered: Yes "
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Distance" />
+
+                <TextView
+                    android:id="@+id/tripDistanceTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Distance: 12.03 KM"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Duration" />
+
+                <TextView
+                    android:id="@+id/tripDurationTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Duration: 12 minutes"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
 
 
             <Button

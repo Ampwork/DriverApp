@@ -94,6 +94,7 @@ public class BusDetailActivity extends AppCompatActivity {
         fuelReadingTv.setText(preferencesManager.getStringValue(AppConstant.PREF_TOTAL_FUEL));
         mileageTv.setText(preferencesManager.getStringValue(AppConstant.PREF_MILEAGE));
 
+
         backImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.ampwork.driverapp.R;
 import com.ampwork.driverapp.Util.AppConstant;
+import com.ampwork.driverapp.Util.AppUtility;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.Fuel;
@@ -43,7 +44,7 @@ import java.util.Set;
 
 public class SettingsActivity extends AppCompatActivity {
 
-    private TextView profileTv, changePwdTv;
+    private TextView profileTv, changePwdTv,privacyTv,termConditionTv;
     private ImageView backImageView;
 
     PreferencesManager preferencesManager;
@@ -64,6 +65,8 @@ public class SettingsActivity extends AppCompatActivity {
         backImageView = findViewById(R.id.backImageView);
         profileTv = findViewById(R.id.profileTv);
         changePwdTv = findViewById(R.id.changePwdTv);
+        privacyTv  = findViewById(R.id.privacyTv);
+        termConditionTv  = findViewById(R.id.termConditionTv);
 
 
         profileTv.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +83,20 @@ public class SettingsActivity extends AppCompatActivity {
                 if (ConnectivityReceiver.isConnected()) {
                     showChangePassword();
                 }
+            }
+        });
+
+        privacyTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppUtility.callBrowserIntent(SettingsActivity.this,"https://ampwork.com/");
+            }
+        });
+
+        termConditionTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppUtility.callBrowserIntent(SettingsActivity.this,"https://ampwork.com/");
             }
         });
 

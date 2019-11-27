@@ -157,9 +157,9 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(ConnectivityReceiver.isConnected()){
+                if (ConnectivityReceiver.isConnected()) {
                     validateUser();
-                }else {
+                } else {
                     Snackbar snackbar = Snackbar
                             .make(view, getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
                     snackbar.show();
@@ -176,9 +176,9 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         // register connection status listener
         MyApplication.getInstance().setConnectivityListener(this);
 
-        if(ConnectivityReceiver.isConnected()){
+        if (ConnectivityReceiver.isConnected()) {
             getIntitutesList();
-        }else {
+        } else {
             Snackbar snackbar = Snackbar
                     .make(findViewById(R.id.loginBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
             snackbar.show();
@@ -229,7 +229,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
         progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Authenticating...");
+        progressDialog.setMessage("Verifying Login...");
         progressDialog.show();
 
         new android.os.Handler().postDelayed(
@@ -245,7 +245,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
         String institute_name = instituteAutoComTv.getText().toString();
         String institute_key = "";
-        String institute_type ;
+        String institute_type;
 
         for (int i = 0; i < instituteDetailArrayList.size(); i++) {
             InstituteDetail instituteDetail = instituteDetailArrayList.get(i);
@@ -278,9 +278,9 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
                     Object driverObject = result.get(driverKey);
                     Map<String, Object> object = (Map<String, Object>) driverObject;
                     if (password.equalsIgnoreCase(object.get(AppConstant.PREF_DRIVER_PASSWORD).toString())) {
-                        if((boolean)object.get(AppConstant.PREF_STR_LOGGEDIN)) {
+                        if ((boolean) object.get(AppConstant.PREF_STR_LOGGEDIN)) {
                             Toast.makeText(LoginActivity.this, "User is already loggedin..", Toast.LENGTH_SHORT).show();
-                        }else {
+                        } else {
                             saveData(object, driverKey, finalInstitute_key);
                         }
                     } else {
@@ -313,18 +313,12 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         if (instituteName.isEmpty()) {
             instituteAutoComTvLayout.setError(getResources().getString(R.string.institute_error_text));
             valid = false;
-        }
-
-        if (phone.length() < 10) {
+        } else if (phone.length() < 10) {
             phoneEdtLayout.setError("Enter 10 digit number");
             valid = false;
-        }
-
-        if (pwd.isEmpty() || pwd.length() < 6) {
+        } else if (pwd.isEmpty() || pwd.length() < 6) {
             passwordEdtLayout.setError("Enter atleast 6 characters");
             valid = false;
-        } else {
-            passwordEdt.setError(null);
         }
 
         return valid;
@@ -345,8 +339,8 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
         preferencesManager.setStringValue(AppConstant.PREF_DRIVER_INSTITUTE, object.get(AppConstant.PREF_DRIVER_INSTITUTE).toString());
         preferencesManager.setStringValue(AppConstant.PREF_DRIVER_PASSWORD, object.get(AppConstant.PREF_DRIVER_PASSWORD).toString());
 
-        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIPS,object.get(AppConstant.PREF_STR_TOTAL_TRIPS).toString());
-        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE,object.get(AppConstant.PREF_STR_TRIP_DISTANCE).toString());
+        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIPS, object.get(AppConstant.PREF_STR_TOTAL_TRIPS).toString());
+        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_TOTAL_TRIP_DISTANCE, object.get(AppConstant.PREF_STR_TRIP_DISTANCE).toString());
 
 
         preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, true);
@@ -378,7 +372,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
                         // Get new Instance ID token
                         fcm_token = task.getResult().getToken();
-                        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_FCMTOKEN,fcm_token);
+                        preferencesManager.setStringValue(AppConstant.PREF_DRIVER_FCMTOKEN, fcm_token);
 
                     }
                 });
@@ -387,10 +381,10 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
     @Override
     public void onNetworkConnectionChanged(boolean isConnected) {
-        if(isConnected){
+        if (isConnected) {
             finish();
             startActivity(getIntent());
-        }else {
+        } else {
             Snackbar snackbar = Snackbar
                     .make(findViewById(R.id.loginBtn), getResources().getString(R.string.no_internet), Snackbar.LENGTH_LONG);
             snackbar.show();
