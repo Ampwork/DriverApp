@@ -55,7 +55,7 @@ public class NotificationsAdapter extends RecyclerView.Adapter<NotificationsAdap
             holder.mainLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    notification.setDate(notificationDay + " " + notificationTime);
+                    notification.setDate(notificationDay + "\n" + notificationTime);
                     showDetail(notification);
                 }
             });

@@ -132,6 +132,32 @@
 
             </LinearLayout>
 
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/layout_margin"
+                android:orientation="horizontal"
+                android:weightSum="2">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Bus stops covered" />
+
+                <TextView
+                    android:id="@+id/busStopsListTv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Trip Arrival: 12.15 "
+                    android:textAppearance="@style/TextAppearance.AppCompat.Light.Widget.PopupMenu.Small"
+                    android:textColor="@color/secondaryTextColor" />
+
+
+            </LinearLayout>
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

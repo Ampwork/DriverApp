@@ -16,7 +16,7 @@
             android:title="@string/menu_notification" />
         <item
             android:id="@+id/nav_trips"
-            android:icon="@drawable/ic_directions_bus"
+            android:icon="@drawable/ic_odometer"
             android:title="@string/menu_recenttrips" />
 
         <item

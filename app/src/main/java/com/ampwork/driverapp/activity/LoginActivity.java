@@ -88,10 +88,6 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
         getFcmToken();
 
-        BitmapDrawable bitmapDrawable = (BitmapDrawable) getResources().getDrawable(R.drawable.logo_black);
-        Bitmap b = bitmapDrawable.getBitmap();
-        Bitmap smallImag = Bitmap.createScaledBitmap(b, 512, 256, false);
-        logo.setImageBitmap(smallImag);
 
         instituteAutoComTv.addTextChangedListener(new TextWatcher() {
             @Override
@@ -344,6 +340,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
 
         preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, true);
+        preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION,"");
 
 
         // update fcm token

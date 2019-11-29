@@ -71,6 +71,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
 
     @Override
     public int getItemCount() {
+
         return busLogArrayList.size();
     }
 
@@ -92,11 +93,14 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
 
     private void showLogDetail(BusLog logDetail) {
 
+
+
         View view = LayoutInflater.from(context).inflate(R.layout.trip_status_layout, null);
         TextView routeNameTv = view.findViewById(R.id.routeNameTv);
         TextView tripTypeTv = view.findViewById(R.id.tripTypeTv);
         TextView tripDepartTv = view.findViewById(R.id.tripDepartTv);
         TextView tripArrivalTv = view.findViewById(R.id.tripArrivalTv);
+        TextView busStopsListTv = view.findViewById(R.id.busStopsListTv);
         TextView tripstausTv = view.findViewById(R.id.tripstausTv);
         TextView tripDistanceTv = view.findViewById(R.id.tripDistanceTv);
         TextView tripDurationTv = view.findViewById(R.id.tripDurationTv);
@@ -112,6 +116,7 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
         }
         tripDepartTv.setText(": " + logDetail.getDepartTime());
         tripArrivalTv.setText(": " + logDetail.getArrivedTime());
+        busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
             tripstausTv.setText(": " + "Yes");
             stopsCoveredTv.setText(": Yes");
@@ -140,6 +145,9 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
             }
         });
     }
+
+
+
 
 
 }

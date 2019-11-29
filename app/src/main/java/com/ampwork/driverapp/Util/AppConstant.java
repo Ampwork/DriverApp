@@ -14,6 +14,7 @@ public class AppConstant {
     public static String PREF_BUS_STOPS_COVERED = "busStopsCovered";
 
     public static String PREF_NOTIFICATION_ARRIVED = "notificationarrived";// Boolean
+    public static String PREF_RECENT_NOTIFICATION = "recentnotification";
     public static String PREF_BUS_STOPS_LIST= "busstopslist";
 
     public static String PREF_DRIVER_KEY = "driverkey";

@@ -1,10 +1,9 @@
 <resources>
-    <string name="app_name">DriverApp</string>
-    <string name="app_title">DriverApp</string>
+    <string name="app_name">Driver360</string>
     <string name="fg_notification_title">Trackit 360 Driver App</string>
 
     <string name="default_notification_channel_id">studentID</string>
-    <string name="fcm_message">Notification</string>
+    <string name="fcm_message">Trackit360</string>
 
     <string name="fg_text">This app is using driver current location to update bus location.</string>
     <string name="no_internet">No internet avilable. Check your data or wifi connection.</string>
@@ -65,6 +64,11 @@
     <string name="username_hint">Username</string>
     <string name="pwd_hint">Password</string>
     <string name="login_btn">Login</string>
+
+    <!--Navigation Drawer-->
+    <string name="privacy_link">Privacy</string>
+    <string name="terms_link">Terms</string>
+    <string name="recent_note">Recent Notification</string>
 
 
     <!--Home Screen-->

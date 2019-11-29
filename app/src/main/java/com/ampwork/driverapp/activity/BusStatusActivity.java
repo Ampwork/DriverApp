@@ -121,6 +121,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     FusedLocationProviderClient fusedLocationProviderClient;
     String next_stop_order, start_point, end_point, next_stop, drive_direction;
 
+    private LinearLayout notificationLayout,bottomLinkLayout;
+    private TextView notificationTv,privacyTv,termsTv;
+
     private static final String TAG = "BusStatus";
 
 
@@ -199,7 +202,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(getResources().getString(R.string.app_title));
+        toolbar.setTitle(getResources().getString(R.string.app_name));
 
         initView();
 
@@ -270,6 +273,35 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
 
+        notificationTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (ConnectivityReceiver.isConnected()) {
+                    hideNotificationBadge();
+                    Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
+                    startActivity(notificationIntent);
+                }
+
+            }
+        });
+
+
+        privacyTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AppUtility.callBrowserIntent(BusStatusActivity.this,"https://ampwork.com/");
+            }
+        });
+
+
+        termsTv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AppUtility.callBrowserIntent(BusStatusActivity.this,"https://ampwork.com/");
+            }
+        });
+
+
     }
 
     private void initView() {
@@ -283,6 +315,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         drawer.addDrawerListener(badgeDrawerToggle);
         badgeDrawerToggle.setBadgeEnabled(false);
         badgeDrawerToggle.syncState();
+        navigationView.setItemIconTintList(null);
        /* ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -311,6 +344,19 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         navHeaderSubTitleTv = headerView.findViewById(R.id.navHeaderSubTitleTv);
         navHeaderSubTitle2Tv = headerView.findViewById(R.id.navHeaderSubTitle2Tv);
 
+        View bottomView = navigationView.getChildAt(1);
+        notificationLayout = bottomView.findViewById(R.id.notificationLayout);
+        notificationTv = bottomView.findViewById(R.id.notificationTv);
+        privacyTv = bottomView.findViewById(R.id.privacyTv);
+        termsTv = bottomView.findViewById(R.id.termsTv);
+
+        String recent_notification = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION);
+        if(recent_notification!=null && !recent_notification.isEmpty()){
+            notificationLayout.setVisibility(View.VISIBLE);
+            notificationTv.setText(recent_notification);
+        }
+
+
         fab_fuel = findViewById(R.id.fab_fuel);
         fab_bell = (ExtendedFloatingActionButton) findViewById(R.id.fab_bell);
 
@@ -326,9 +372,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         busDistanceLayout = findViewById(R.id.busDistanceLayout);
 
         // Intialize Data
-        navHeaderTitleTv.setText(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME));
-        navHeaderSubTitleTv.setText(preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE));
-        navHeaderSubTitle2Tv.setText(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
+        navHeaderTitleTv.setText(":  " + preferencesManager.getStringValue(AppConstant.PREF_DRIVER_NAME));
+        navHeaderSubTitleTv.setText(":  " + preferencesManager.getStringValue(AppConstant.PREF_DRIVER_INSTITUTE));
+        navHeaderSubTitle2Tv.setText(":  " + preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
 
     }
 
@@ -385,7 +431,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     next_stop_order = "0";
                     next_stop = busStopsArrayList.get(0).getBusStopName();
 
-                    toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + AppConstant.PREF_STR_DROP);
+                    toolbar.setTitle(getResources().getString(R.string.app_name) + " - " + AppConstant.PREF_STR_DROP);
 
                 } else {
 
@@ -397,7 +443,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     next_stop = busStopsArrayList.get(busStopsArrayList.size() - 1).getBusStopName();
 
 
-                    toolbar.setTitle(getResources().getString(R.string.app_title) + " - " + AppConstant.PREF_STR_PICKUP);
+                    toolbar.setTitle(getResources().getString(R.string.app_name) + " - " + AppConstant.PREF_STR_PICKUP);
                 }
 
                 preferencesManager.setStringValue(AppConstant.PREF_SOURCE_POINT_ID, "0");
@@ -458,7 +504,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 startBtn.setEnabled(false);
                 Toast.makeText(BusStatusActivity.this, "Click StopTrip Button to reset the trip..", Toast.LENGTH_LONG).show();
             } else {
-                toolbar.setTitle(getResources().getString(R.string.app_title));
+                toolbar.setTitle(getResources().getString(R.string.app_name));
                 checkLocationPermission();
             }
 
@@ -864,7 +910,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                         preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
                         preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, "");
 
-                        toolbar.setTitle(getResources().getString(R.string.app_title));
+                        toolbar.setTitle(getResources().getString(R.string.app_name));
                         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
                         showLogDetail(logDetail);
@@ -895,7 +941,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 preferencesManager.setBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS, false);
                 preferencesManager.setStringValue(AppConstant.PREF_SELECTED_TRIP_TIME, "");
 
-                toolbar.setTitle(getResources().getString(R.string.app_title));
+                toolbar.setTitle(getResources().getString(R.string.app_name));
                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
                 showLogDetail(logDetail);
@@ -933,6 +979,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         TextView tripDepartTv = view.findViewById(R.id.tripDepartTv);
         TextView tripArrivalTv = view.findViewById(R.id.tripArrivalTv);
         TextView tripstausTv = view.findViewById(R.id.tripstausTv);
+        TextView busStopsListTv = view.findViewById(R.id.busStopsListTv);
         TextView tripDistanceTv = view.findViewById(R.id.tripDistanceTv);
         TextView tripDurationTv = view.findViewById(R.id.tripDurationTv);
         TextView stopsCoveredTv = view.findViewById(R.id.stopsCoveredTv);
@@ -946,6 +993,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         }
         tripDepartTv.setText(": " + logDetail.getDepartTime());
         tripArrivalTv.setText(": " + logDetail.getArrivedTime());
+        busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
             tripstausTv.setText(": " + "Yes");
             stopsCoveredTv.setText(": Yes");

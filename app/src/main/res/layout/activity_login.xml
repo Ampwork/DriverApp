@@ -9,7 +9,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="80dp"
         android:orientation="vertical">
 
 
@@ -18,22 +18,22 @@
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/fab_margin"
             android:gravity="center_vertical"
-            android:text="@string/lg_title"
-            android:textSize="@dimen/title_ts"
+            android:text="@string/app_name"
             android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:textColor="@color/primaryTextColor" />
+            android:textColor="@color/primaryTextColor"
+            android:textSize="@dimen/title_ts" />
 
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="90dp"
-        android:background="@drawable/bottom_layout"
+        android:layout_marginTop="70dp"
         android:orientation="vertical"
-        android:paddingLeft="@dimen/layout_margin"
-        android:paddingTop="@dimen/layout_margin"
-        android:paddingRight="@dimen/double_margin">
+        android:background="@drawable/bottom_layout"
+        android:paddingLeft="12dp"
+        android:paddingTop="12dp"
+        android:paddingRight="24dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -44,7 +44,8 @@
                 android:id="@+id/logo"
                 android:layout_width="wrap_content"
                 android:layout_height="120dp"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:src="@drawable/logo_black" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -64,11 +65,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="4dp"
-                    app:helperTextEnabled="true"
-                    app:helperTextTextColor="@color/error_color"
-                    app:endIconMode="custom"
+                    android:hint="@string/hint_institute_name"
                     app:endIconDrawable="@drawable/ic_search"
-                    android:hint="@string/hint_institute_name">
+                    app:endIconMode="custom"
+                    app:helperTextEnabled="true"
+                    app:helperTextTextColor="@color/error_color">
 
                     <AutoCompleteTextView
                         android:id="@+id/instituteAutoComTv"
@@ -77,8 +78,8 @@
                         android:completionThreshold="2"
                         android:ellipsize="start"
                         android:imeOptions="actionDone"
-                        android:textColor="@color/secondaryTextColor"
-                        android:singleLine="true" />
+                        android:singleLine="true"
+                        android:textColor="@color/secondaryTextColor" />
 
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -144,16 +145,15 @@
                         android:id="@+id/passwordEdt"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPassword"
-                        android:maxLines="1"
-                        android:maxLength="12"
-                        android:imeOptions="actionDone"
                         android:cursorVisible="true"
+                        android:imeOptions="actionDone"
+                        android:inputType="textPassword"
+                        android:maxLength="12"
+                        android:maxLines="1"
                         android:textColor="@color/secondaryTextColor" />
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-
 
 
             <com.google.android.material.button.MaterialButton

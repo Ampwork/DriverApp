@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -38,7 +39,7 @@ public class NotificationActivity extends AppCompatActivity {
     private ImageView backImageView;
 
     private PreferencesManager preferencesManager;
-
+    private Boolean isFromNotification = false;
 
 
     @Override
@@ -46,7 +47,11 @@ public class NotificationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notification);
 
+
         preferencesManager = new PreferencesManager(this);
+        //Reset the notification flag
+        preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, false);
+        isFromNotification = getIntent().getBooleanExtra("is_from_notification",false);
         backImageView = findViewById(R.id.backImageView);
 
         viewPager = findViewById(R.id.view_pager);
@@ -77,4 +82,13 @@ public class NotificationActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        if(isFromNotification){
+            Intent intent = new Intent(NotificationActivity.this, BusStatusActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
+    }
 }

@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.collection.ArrayMap;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -22,6 +23,7 @@ import com.ampwork.driverapp.Util.AppConstant;
 import com.ampwork.driverapp.Util.AppUtility;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.activity.BusStatusActivity;
+import com.ampwork.driverapp.activity.NotificationActivity;
 import com.ampwork.driverapp.database.DBHelper;
 import com.ampwork.driverapp.model.Notification;
 import com.google.firebase.database.DatabaseReference;
@@ -29,11 +31,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFCMService";
+    PreferencesManager preferencesManager;
 
     public MyFirebaseMessagingService() {
     }
@@ -42,17 +50,19 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         Log.d(TAG, "From: " + remoteMessage.getFrom());
 
+        preferencesManager = new PreferencesManager(getApplicationContext());
+
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
             Log.d(TAG, "Message data payload: " + remoteMessage.getData());
-
-            if (/* Check if data needs to be processed by long running job */ true) {
-                // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                // scheduleJob();
-            } else {
-                // Handle message within 10 seconds
-                // handleNow();
+            Collection<String> data = remoteMessage.getData().values();
+            ArrayList<String> stringArrayList = new ArrayList<>();
+            for (String s : data) {
+                stringArrayList.add(s);
             }
+
+            handleMessage(stringArrayList);
+
 
         }
 
@@ -66,6 +76,28 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         }
     }
 
+    private void handleMessage(ArrayList<String> stringArrayList) {
+        JSONObject data = null;
+
+        // data = json.getJSONObject("data");
+        String title = stringArrayList.get(0);//data.getString("title");
+        String message = stringArrayList.get(1);//data.getString("message");
+
+        preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION,message);
+
+
+        if (AppUtility.isAppIsInBackground(getApplicationContext())) {
+            preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
+            sendNotification(message);
+        } else {
+            playNotificationSound();
+            Intent notificationAlertIntent = new Intent(AppConstant.STR_NOTIFICATION_FILTER);
+            LocalBroadcastManager.getInstance(MyFirebaseMessagingService.this).sendBroadcast(notificationAlertIntent);
+        }
+
+
+    }
+
     /**
      * Called if InstanceID token is updated. This may occur if the security of
      * the previous token had been compromised. Note that this is called when the InstanceID token
@@ -74,10 +106,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     @Override
     public void onNewToken(String token) {
         Log.d(TAG, "Refreshed token: " + token);
-
-        // If you want to send messages to this application instance or
-        // manage this apps subscriptions on the server side, send the
-        // Instance ID token to your app server.
         sendRegistrationToServer(token);
     }
     // [END on_new_token]
@@ -95,7 +123,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     }
 
     private void sendNotification(String messageBody) {
-        Intent intent = new Intent(this, BusStatusActivity.class);
+
+        Intent intent = new Intent(this, NotificationActivity.class);
+        intent.putExtra("is_from_notification", true);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
@@ -104,16 +134,17 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder =
                 new NotificationCompat.Builder(this, channelId)
-                        .setSmallIcon(R.drawable.bus_marker)
+                        .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                        .setColor(getResources().getColor(R.color.secondaryColor))
                         .setContentTitle(getString(R.string.fcm_message))
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(messageBody))
+                        .setContentText(messageBody)
                         .setAutoCancel(true)
                         .setSound(defaultSoundUri)
                         .setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
         // Since android Oreo notification channel is needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

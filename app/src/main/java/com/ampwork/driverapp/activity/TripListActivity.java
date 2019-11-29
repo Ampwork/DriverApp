@@ -52,8 +52,19 @@ public class TripListActivity extends AppCompatActivity {
         preferencesManager = new PreferencesManager(this);
         backImageView = findViewById(R.id.backImageView);
         noDataTv = findViewById(R.id.noDataTv);
-        recyclerView = findViewById(R.id.tripListView);
         progressBarLayout = findViewById(R.id.progressBarLayout);
+
+        recyclerView = findViewById(R.id.tripListView);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
+        recyclerView.setLayoutManager(mLayoutManager);
+        //recyclerView.addItemDecoration(new EqualSpacingItemDecoration(20));
+        recyclerView.addItemDecoration(new SimpleLineDividerItemDecoration(this));
+
+
+        getTripData();
+
+
+
 
 
         backImageView.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +74,7 @@ public class TripListActivity extends AppCompatActivity {
             }
         });
 
-        getTripData();
+
 
     }
 
@@ -79,16 +90,18 @@ public class TripListActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 progressBarLayout.setVisibility(View.GONE);
                 if (dataSnapshot.hasChildren()) {
+                    ArrayList<BusLog> busLogs = new ArrayList<BusLog>();
                     busLogArrayList.clear();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         BusLog busLog = snapshot.getValue(BusLog.class);
-                        busLogArrayList.add(busLog);
+                        busLogs.add(busLog);
 
                     }
-                    if (busLogArrayList.size() > 0) {
+                    if (busLogs.size() > 0) {
                         noDataTv.setVisibility(View.GONE);
-                        Collections.reverse(busLogArrayList);
-                        displayList();
+                        recyclerView.setVisibility(View.VISIBLE);
+                        Collections.reverse(busLogs);
+                        displayList(busLogs);
                     } else {
                         noDataTv.setVisibility(View.VISIBLE);
                     }
@@ -107,13 +120,9 @@ public class TripListActivity extends AppCompatActivity {
         });
     }
 
-    private void displayList() {
-        recyclerView.setVisibility(View.VISIBLE);
+    private void displayList(ArrayList<BusLog> busLogArrayList1) {
+        busLogArrayList.addAll(busLogArrayList1);
         mAdapter = new TripListAdapter(this, busLogArrayList);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this, RecyclerView.VERTICAL, false);
-        recyclerView.setLayoutManager(mLayoutManager);
-        //recyclerView.addItemDecoration(new EqualSpacingItemDecoration(20));
-        recyclerView.addItemDecoration(new SimpleLineDividerItemDecoration(this));
         recyclerView.setAdapter(mAdapter);
     }
 }
