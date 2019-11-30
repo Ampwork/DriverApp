@@ -116,7 +116,12 @@ public class TripListAdapter extends RecyclerView.Adapter<TripListAdapter.ViewHo
         }
         tripDepartTv.setText(": " + logDetail.getDepartTime());
         tripArrivalTv.setText(": " + logDetail.getArrivedTime());
-        busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
+        if(logDetail.getBusStopsCovered().length()>0){
+            busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
+        }else {
+            busStopsListTv.setText(": " + " --");
+        }
+
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
             tripstausTv.setText(": " + "Yes");
             stopsCoveredTv.setText(": Yes");

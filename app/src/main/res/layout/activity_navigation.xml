@@ -20,49 +20,269 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_navigation"
-        app:itemTextColor="@color/secondaryTextColor"
-        app:menu="@menu/activity_navigation_drawer">
+        app:itemTextColor="@color/secondaryTextColor">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/nav_header_height"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/layout_margin"
+            android:paddingBottom="@dimen/layout_margin">
 
             <LinearLayout
-                android:id="@+id/notificationLayout"
-                android:visibility="gone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/notification_ml"
+                android:layout_above="@id/bottomLinkLayout"
+                android:layout_alignParentTop="true"
                 android:orientation="vertical">
 
-                <TextView
+                <LinearLayout
+                    android:id="@+id/menuLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/recent_note"
-                    android:textSize="@dimen/desc_ts" />
+                    android:orientation="vertical">
 
-                <TextView
-                    android:id="@+id/notificationTv"
+                    <LinearLayout
+                        android:id="@+id/navHomeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/nav_bg"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/menu_home" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_home"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/secondaryTextColor"
+                            android:textSize="@dimen/desc_ts" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/navNotificationLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/menu_notifications" />
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentLeft="true"
+                                android:text="@string/menu_notification"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                                android:textColor="@color/secondaryTextColor"
+                                android:textSize="@dimen/desc_ts" />
+
+                            <TextView
+                                android:id="@+id/notificationCountTv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:text=""
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                                android:textColor="@color/error_color"
+                                android:textSize="@dimen/desc_ts" />
+
+                        </RelativeLayout>
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/navTripsLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/ic_odometer" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_recenttrips"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/secondaryTextColor"
+                            android:textSize="@dimen/desc_ts" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/navBusDetailLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/ic_directions_bus" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_busdetail"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/secondaryTextColor"
+                            android:textSize="@dimen/desc_ts" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/navSettingLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/menu_settings" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_setting"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/secondaryTextColor"
+                            android:textSize="@dimen/desc_ts" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/navLogoutLayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="@dimen/layout_margin">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="@dimen/layout_margin"
+                            android:src="@drawable/ic_logout" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/menu_logout"
+                            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                            android:textColor="@color/secondaryTextColor"
+                            android:textSize="@dimen/desc_ts" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/notificationLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:maxLines="3"
-                    android:ellipsize="end"
-                    android:text="to bottom in the navigationview. xml . You need to have a container navigation view layout and then that should contain two more navigation layouts. You align those to top and bottom of the in the navigationview. xml . You need to have a container navigation view layout and then that should contain two more navigation layouts. You align those to top and bottom of the"
-                    android:textSize="@dimen/desc_ts" />
+                    android:layout_below="@id/menuLayout"
+                    android:layout_margin="@dimen/layout_margin"
+                    android:background="@drawable/zigzag_bg"
+                    android:orientation="vertical"
+                    android:visibility="gone">
 
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/nav_bg"
+                        android:gravity="center"
+                        android:padding="@dimen/layout_padding"
+                        android:text="@string/recent_note"
+                        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
+                        android:textColor="@color/secondaryTextColor"
+                        android:textSize="@dimen/small_ts" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:id="@+id/dateTv"
+                            android:layout_alignParentLeft="true"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Date: Today"
+                            android:textColor="@color/primaryLightColor"
+                            android:textFontWeight="200"
+                            android:textSize="@dimen/small_ts" />
+
+                        <TextView
+                            android:id="@+id/timeTv"
+                            android:layout_alignParentRight="true"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Time: 11:30"
+                            android:textColor="@color/primaryLightColor"
+                            android:textFontWeight="200"
+                            android:textSize="@dimen/small_ts" />
+
+                    </RelativeLayout>
+
+
+                    <TextView
+                        android:id="@+id/notificationTv"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="@dimen/layout_padding"
+                        android:text=""
+                        android:textColor="@color/secondaryTextColor"
+                        android:textSize="@dimen/small_ts" />
+
+
+                </LinearLayout>
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:id="@+id/bottomLinkLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:orientation="horizontal"
-                android:padding="@dimen/layout_margin">
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="@dimen/activity_horizontal_margin"
+                android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/privacyTv"
@@ -71,7 +291,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/privacy_link"
-                    android:textColor="@color/app_blue"
+                    android:textColor="@color/primaryLightColor"
                     android:textSize="@dimen/small_ts" />
 
                 <TextView
@@ -81,14 +301,12 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:text="@string/terms_link"
-                    android:textColor="@color/app_blue"
+                    android:textColor="@color/primaryLightColor"
                     android:textSize="@dimen/small_ts" />
-
 
             </LinearLayout>
 
-        </LinearLayout>
-
+        </RelativeLayout>
 
     </com.google.android.material.navigation.NavigationView>
 

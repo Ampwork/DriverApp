@@ -121,8 +121,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     FusedLocationProviderClient fusedLocationProviderClient;
     String next_stop_order, start_point, end_point, next_stop, drive_direction;
 
-    private LinearLayout notificationLayout,bottomLinkLayout;
-    private TextView notificationTv,privacyTv,termsTv;
+    private LinearLayout navHomeLayout,navNotificationLayout,navTripsLayout,navBusDetailLayout,navSettingLayout,navLogoutLayout,notificationLayout,bottomLinkLayout;
+    private TextView notificationCountTv,notificationTv,privacyTv,termsTv;
 
     private static final String TAG = "BusStatus";
 
@@ -194,6 +194,12 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 } else if (intent.getAction().equalsIgnoreCase(AppConstant.STR_NOTIFICATION_FILTER)) {
                     preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, true);
+                    //Display Recent notification
+                    String recent_notification = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION);
+                    if(recent_notification!=null && !recent_notification.isEmpty()){
+                        notificationLayout.setVisibility(View.VISIBLE);
+                        notificationTv.setText(recent_notification);
+                    }
                     showNotificationBadge();
 
                 }
@@ -240,7 +246,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     stopTrip();
                 } else if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
                     final AlertDialog dialog = new MaterialAlertDialogBuilder(BusStatusActivity.this, R.style.AlertDialogTheme)
-                            .setTitle("You want to stop the trip?")
+                            .setTitle("Do you want to stop the trip?")
                             .setCancelable(false)
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
@@ -276,12 +282,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         notificationTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ConnectivityReceiver.isConnected()) {
-                    hideNotificationBadge();
-                    Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
-                    startActivity(notificationIntent);
-                }
-
+                navigationItemSelected(v);
             }
         });
 
@@ -300,6 +301,70 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 AppUtility.callBrowserIntent(BusStatusActivity.this,"https://ampwork.com/");
             }
         });
+
+        navHomeLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+
+            }
+        });
+
+        navNotificationLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                navNotificationLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+
+            }
+        });
+
+
+        navTripsLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                navTripsLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+            }
+        });
+
+        navBusDetailLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                navBusDetailLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+
+
+            }
+        });
+
+        navSettingLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                navSettingLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+
+            }
+        });
+
+        navLogoutLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                navHomeLayout.setBackgroundColor(getResources().getColor(R.color.white));
+                navLogoutLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+                navigationItemSelected(v);
+
+            }
+        });
+
+
+
+
 
 
     }
@@ -321,11 +386,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         drawer.addDrawerListener(toggle);
         toggle.syncState();*/
 
-        notificationActionCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().findItem(R.id.nav_notification));
+      /*  notificationActionCount = (TextView) MenuItemCompat.getActionView(navigationView.getMenu().findItem(R.id.nav_notification));
         notificationActionCount.setGravity(Gravity.CENTER_VERTICAL);
         notificationActionCount.setTypeface(null, Typeface.BOLD);
         notificationActionCount.setTextColor(getResources().getColor(R.color.error_color));
-        notificationActionCount.setText("");
+        notificationActionCount.setText("");*/
 
         if (preferencesManager.getBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED)) {
             showNotificationBadge();
@@ -345,11 +410,23 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         navHeaderSubTitle2Tv = headerView.findViewById(R.id.navHeaderSubTitle2Tv);
 
         View bottomView = navigationView.getChildAt(1);
+
+        // Custom Navigation menu
+        navHomeLayout  = bottomView.findViewById(R.id.navHomeLayout);
+        navNotificationLayout  = bottomView.findViewById(R.id.navNotificationLayout);
+        navTripsLayout  = bottomView.findViewById(R.id.navTripsLayout);
+        navBusDetailLayout  = bottomView.findViewById(R.id.navBusDetailLayout);
+        navSettingLayout  = bottomView.findViewById(R.id.navSettingLayout);
+        navLogoutLayout = bottomView.findViewById(R.id.navLogoutLayout);
+
+        notificationCountTv  = bottomView.findViewById(R.id.notificationCountTv);
+
         notificationLayout = bottomView.findViewById(R.id.notificationLayout);
         notificationTv = bottomView.findViewById(R.id.notificationTv);
         privacyTv = bottomView.findViewById(R.id.privacyTv);
         termsTv = bottomView.findViewById(R.id.termsTv);
 
+        //Display Recent notification
         String recent_notification = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION);
         if(recent_notification!=null && !recent_notification.isEmpty()){
             notificationLayout.setVisibility(View.VISIBLE);
@@ -634,13 +711,16 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void showNotificationBadge() {
         badgeDrawerToggle.setBadgeEnabled(true);
-        notificationActionCount.setText("1+");
+       // notificationActionCount.setText("1+");
+        notificationCountTv.setText("1+");
+
     }
 
     private void hideNotificationBadge() {
         preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, false);
         badgeDrawerToggle.setBadgeEnabled(false);
-        notificationActionCount.setText("");
+       // notificationActionCount.setText("");
+        notificationCountTv.setText("");
     }
 
     @Override
@@ -661,7 +741,15 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         Boolean is_drive_started = preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING);
         Boolean start_btn_activated = preferencesManager.getBooleanValue(AppConstant.PREF_BTN_START);
 
-        navigationView.getMenu().getItem(0).setChecked(true);
+        //navigationView.getMenu().getItem(0).setChecked(true);
+        navHomeLayout.setBackgroundColor(getResources().getColor(R.color.nav_bg));
+        navNotificationLayout.setBackgroundColor(getResources().getColor(R.color.white));
+        navTripsLayout.setBackgroundColor(getResources().getColor(R.color.white));
+        navBusDetailLayout.setBackgroundColor(getResources().getColor(R.color.white));
+        navSettingLayout.setBackgroundColor(getResources().getColor(R.color.white));
+        navLogoutLayout.setBackgroundColor(getResources().getColor(R.color.white));
+
+
 
         if (is_drive_started && start_btn_activated) {
 
@@ -993,7 +1081,11 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         }
         tripDepartTv.setText(": " + logDetail.getDepartTime());
         tripArrivalTv.setText(": " + logDetail.getArrivedTime());
-        busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
+        if(logDetail.getBusStopsCovered().length()>0){
+            busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
+        }else {
+            busStopsListTv.setText(": " + " --");
+        }
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
             tripstausTv.setText(": " + "Yes");
             stopsCoveredTv.setText(": Yes");
@@ -1696,6 +1788,59 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
         return true;
     }
+
+    public void navigationItemSelected(View item) {
+        // Handle navigation view item clicks here.
+        int id = item.getId();
+
+        if (id == R.id.navHomeLayout) {
+            // Handle the camera action
+        } else if (id == R.id.navNotificationLayout || id == R.id.notificationTv) {
+            if (ConnectivityReceiver.isConnected()) {
+                hideNotificationBadge();
+                Intent notificationIntent = new Intent(BusStatusActivity.this, NotificationActivity.class);
+                startActivity(notificationIntent);
+            }
+
+        } else if (id == R.id.navTripsLayout) {
+            if (ConnectivityReceiver.isConnected()) {
+                Intent tripListIntent = new Intent(BusStatusActivity.this, TripListActivity.class);
+                startActivity(tripListIntent);
+            }
+
+
+        } else if (id == R.id.navBusDetailLayout) {
+            Intent busDetailIntent = new Intent(BusStatusActivity.this, BusDetailActivity.class);
+            startActivity(busDetailIntent);
+
+        } else if (id == R.id.navSettingLayout) {
+
+            Intent settingsIntent = new Intent(BusStatusActivity.this, SettingsActivity.class);
+            startActivity(settingsIntent);
+
+        } else if (id == R.id.navLogoutLayout) {
+            if(preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)){
+                MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme);
+                materialAlertDialogBuilder.setTitle("Please complete the trip.");
+                materialAlertDialogBuilder.setCancelable(false);
+                materialAlertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                materialAlertDialogBuilder.show();
+            }else {
+                logout();
+            }
+
+        }
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+
+    }
+
 
     private void logout() {
         if (ConnectivityReceiver.isConnected()) {

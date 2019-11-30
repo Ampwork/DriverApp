@@ -22,7 +22,6 @@
             android:text="Trip Status"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
             android:textColor="@color/secondaryTextColor"
-            android:textFontWeight="200"
             android:textSize="@dimen/title_ts" />
 
         <LinearLayout
@@ -263,6 +262,7 @@
 
             <Button
                 android:id="@+id/successBtn"
+                android:layout_marginTop="@dimen/layout_margin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="end"

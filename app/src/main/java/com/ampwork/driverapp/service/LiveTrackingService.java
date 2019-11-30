@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -163,11 +164,14 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
         String channel_id = createNotificationChannel("my_service", "My Background Service");
 
         // Create the persistent notification//
-        Notification.Builder builder = null;
+        NotificationCompat.Builder builder = null;
+        String messageBody = getResources().getString(R.string.fg_text);
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            builder = new Notification.Builder(this, channel_id)
+            builder = new NotificationCompat.Builder(this, channel_id)
                     .setContentTitle(getString(R.string.fg_notification_title))
-                    .setContentText(getResources().getString(R.string.fg_text))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(messageBody))
+                    .setContentText(messageBody)
                     .setCategory(Notification.CATEGORY_SERVICE)
 
                     //Make this notification ongoing so it can’t be dismissed by the user//
@@ -176,9 +180,11 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
                     //.setContentIntent(broadcastIntent)
                     .setSmallIcon(R.mipmap.ic_app_launcher);
         } else {
-            builder = new Notification.Builder(this)
+            builder = new NotificationCompat.Builder(this)
                     .setContentTitle(getString(R.string.fg_notification_title))
-                    .setContentText(getResources().getString(R.string.fg_text))
+                    .setStyle(new NotificationCompat.BigTextStyle()
+                            .bigText(messageBody))
+                    .setContentText(messageBody)
                     .setOngoing(true)
                     //.setContentIntent(broadcastIntent)
                     .setSmallIcon(R.mipmap.ic_app_launcher);

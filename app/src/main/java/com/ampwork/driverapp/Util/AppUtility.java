@@ -146,6 +146,7 @@ public class AppUtility {
         int day = cal.get(Calendar.DATE);
 
         if (day > 10 && day < 21) {
+           // return new SimpleDateFormat("MMM d'th', yyyy").format(newDate);
             return new SimpleDateFormat("MMM d'th', yyyy").format(newDate);
         } else {
             switch (day % 10) {
