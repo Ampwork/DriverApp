@@ -387,6 +387,7 @@
 
 
                             <LinearLayout
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentTop="true"
@@ -462,6 +463,7 @@
 
 
                             <LinearLayout
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentTop="true"

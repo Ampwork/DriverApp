@@ -48,6 +48,7 @@
     <style name="PositiveButtonStyle" parent="Widget.MaterialComponents.Button.TextButton.Dialog">
         <item name="android:textColor">@color/app_blue</item>
     </style>
+
     <style name="RoundShapeTheme" parent="ThemeOverlay.MaterialComponents.Dialog.Alert">
         <item name="shapeAppearanceMediumComponent">@style/RoundShapeAppearance</item>
     </style>

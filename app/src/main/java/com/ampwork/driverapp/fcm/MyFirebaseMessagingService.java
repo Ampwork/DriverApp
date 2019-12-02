@@ -66,14 +66,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         }
 
-        // Check if message contains a notification payload.
+      /*  // Check if message contains a notification payload.
         if (remoteMessage.getNotification() != null) {
 
             playNotificationSound();
             Intent notificationAlertIntent = new Intent(AppConstant.STR_NOTIFICATION_FILTER);
             LocalBroadcastManager.getInstance(MyFirebaseMessagingService.this).sendBroadcast(notificationAlertIntent);
 
-        }
+        }*/
     }
 
     private void handleMessage(ArrayList<String> stringArrayList) {
@@ -83,7 +83,12 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         String title = stringArrayList.get(0);//data.getString("title");
         String message = stringArrayList.get(1);//data.getString("message");
 
+        String[] strings = AppUtility.getCurrentDateTime().split(" ");
+        final String notificationDay = AppUtility.getNotificationDay(strings[0]);
+        final String notificationTime = strings[1];
+        String notification_time = notificationDay + " at " + notificationTime;
         preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION,message);
+        preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION_TIME,notification_time);
 
 
         if (AppUtility.isAppIsInBackground(getApplicationContext())) {
@@ -94,7 +99,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             Intent notificationAlertIntent = new Intent(AppConstant.STR_NOTIFICATION_FILTER);
             LocalBroadcastManager.getInstance(MyFirebaseMessagingService.this).sendBroadcast(notificationAlertIntent);
         }
-
 
     }
 

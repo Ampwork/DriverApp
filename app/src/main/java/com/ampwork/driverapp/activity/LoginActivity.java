@@ -341,6 +341,7 @@ public class LoginActivity extends AppCompatActivity implements ConnectivityRece
 
         preferencesManager.setBooleanValue(AppConstant.PREF_IS_LOGGEDIN, true);
         preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION,"");
+        preferencesManager.setStringValue(AppConstant.PREF_RECENT_NOTIFICATION_TIME,"");
 
 
         // update fcm token

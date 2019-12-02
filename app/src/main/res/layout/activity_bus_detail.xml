@@ -173,19 +173,6 @@
                     </LinearLayout>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </LinearLayout>
 
             </com.google.android.material.card.MaterialCardView>
@@ -271,13 +258,14 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/view_margin">
+                android:layout_marginTop="@dimen/view_margin"
+                >
 
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/layout_padding"
                     android:layout_weight="1"
+                    android:layout_marginRight="@dimen/layout_padding"
                     app:cardCornerRadius="@dimen/card_radius"
                     app:cardElevation="@dimen/card_elevation">
 
@@ -295,6 +283,7 @@
 
 
                             <LinearLayout
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentTop="true"
@@ -350,11 +339,13 @@
 
                 </com.google.android.material.card.MaterialCardView>
 
+
+
                 <com.google.android.material.card.MaterialCardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="@dimen/layout_padding"
                     android:layout_weight="1"
+                    android:layout_marginLeft="@dimen/layout_padding"
                     app:cardCornerRadius="@dimen/card_radius"
                     app:cardElevation="@dimen/card_elevation">
 
@@ -371,6 +362,7 @@
 
 
                             <LinearLayout
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentTop="true"
@@ -459,6 +451,7 @@
 
 
                             <LinearLayout
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_alignParentTop="true"
@@ -538,6 +531,7 @@
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:layout_marginLeft="@dimen/icon_padding"
                                 android:layout_alignParentLeft="true"
                                 android:layout_alignParentTop="true"
                                 android:orientation="horizontal">
@@ -594,6 +588,12 @@
 
 
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/bottomSpacingLayout"
+                android:layout_width="wrap_content"
+                android:orientation="vertical"
+                android:layout_height="10dp"></LinearLayout>
 
         </LinearLayout>
 
