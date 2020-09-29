@@ -58,6 +58,9 @@ import com.ampwork.driverapp.Util.BadgeDrawerToggle;
 import com.ampwork.driverapp.Util.CustomInfoWindow;
 import com.ampwork.driverapp.Util.PreferencesManager;
 import com.ampwork.driverapp.database.DBHelper;
+import com.ampwork.driverapp.directionhelper.DirectionApiCallBack;
+import com.ampwork.driverapp.directionhelper.DownloadTask;
+import com.ampwork.driverapp.directionhelper.DrawRouteMap;
 import com.ampwork.driverapp.geofencing.GeoFencing;
 import com.ampwork.driverapp.markerhelper.LatLngInterpolator;
 import com.ampwork.driverapp.markerhelper.MarkerAnimation;
@@ -102,7 +105,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
+public class BusStatusActivity extends AppCompatActivity implements DirectionApiCallBack,OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
@@ -122,8 +125,8 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     FusedLocationProviderClient fusedLocationProviderClient;
     String next_stop_order, start_point, end_point, next_stop, drive_direction;
 
-    private LinearLayout navHomeLayout,navNotificationLayout,navTripsLayout,navBusDetailLayout,navSettingLayout,navLogoutLayout,notificationLayout,bottomLinkLayout;
-    private TextView notificationCountTv,notificationTv,notificationTimeTv,privacyTv,termsTv;
+    private LinearLayout navHomeLayout, navNotificationLayout, navTripsLayout, navBusDetailLayout, navSettingLayout, navLogoutLayout, notificationLayout, bottomLinkLayout;
+    private TextView notificationCountTv, notificationTv, notificationTimeTv, privacyTv, termsTv;
 
     private static final String TAG = "BusStatus";
 
@@ -199,7 +202,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     //Display Recent notification
                     String recent_notification = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION);
                     String recent_notification_time = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION_TIME);
-                    if(recent_notification!=null && !recent_notification.isEmpty()){
+                    if (recent_notification != null && !recent_notification.isEmpty()) {
                         notificationLayout.setVisibility(View.VISIBLE);
                         notificationTv.setText(recent_notification);
                         notificationTimeTv.setText(recent_notification_time);
@@ -295,7 +298,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         privacyTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AppUtility.callBrowserIntent(BusStatusActivity.this,"https://ampwork.com/");
+                AppUtility.callBrowserIntent(BusStatusActivity.this, "https://ampwork.com/");
             }
         });
 
@@ -303,7 +306,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         termsTv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AppUtility.callBrowserIntent(BusStatusActivity.this,"https://ampwork.com/");
+                AppUtility.callBrowserIntent(BusStatusActivity.this, "https://ampwork.com/");
             }
         });
 
@@ -410,14 +413,14 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
 
         // Custom Navigation menu
-        navHomeLayout  = bottomView.findViewById(R.id.navHomeLayout);
-        navNotificationLayout  = bottomView.findViewById(R.id.navNotificationLayout);
-        navTripsLayout  = bottomView.findViewById(R.id.navTripsLayout);
-        navBusDetailLayout  = bottomView.findViewById(R.id.navBusDetailLayout);
-        navSettingLayout  = bottomView.findViewById(R.id.navSettingLayout);
+        navHomeLayout = bottomView.findViewById(R.id.navHomeLayout);
+        navNotificationLayout = bottomView.findViewById(R.id.navNotificationLayout);
+        navTripsLayout = bottomView.findViewById(R.id.navTripsLayout);
+        navBusDetailLayout = bottomView.findViewById(R.id.navBusDetailLayout);
+        navSettingLayout = bottomView.findViewById(R.id.navSettingLayout);
         navLogoutLayout = bottomView.findViewById(R.id.navLogoutLayout);
 
-        notificationCountTv  = bottomView.findViewById(R.id.notificationCountTv);
+        notificationCountTv = bottomView.findViewById(R.id.notificationCountTv);
 
         notificationLayout = bottomView.findViewById(R.id.notificationLayout);
         notificationTv = bottomView.findViewById(R.id.notificationTv);
@@ -428,7 +431,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         //Display Recent notification
         String recent_notification = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION);
         String recent_notification_time = preferencesManager.getStringValue(AppConstant.PREF_RECENT_NOTIFICATION_TIME);
-        if(recent_notification!=null && !recent_notification.isEmpty()){
+        if (recent_notification != null && !recent_notification.isEmpty()) {
             notificationLayout.setVisibility(View.VISIBLE);
             notificationTv.setText(recent_notification);
             notificationTimeTv.setText(recent_notification_time);
@@ -496,10 +499,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         mMap.setMyLocationEnabled(false);
 
         if (busStopsArrayList != null && busStopsArrayList.size() > 0) {
-
-          /*  // Register Geofence
-            mGeoFencing.updateGeofencesList(busStopsArrayList);
-            mGeoFencing.registerAllGeofences();*/
 
             drive_direction = preferencesManager.getStringValue(AppConstant.PREF_DRIVING_DIRECTION);
 
@@ -717,7 +716,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     private void showNotificationBadge() {
         badgeDrawerToggle.setBadgeEnabled(true);
-       // notificationActionCount.setText("1+");
+        // notificationActionCount.setText("1+");
         notificationCountTv.setText("1+");
 
     }
@@ -725,7 +724,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
     private void hideNotificationBadge() {
         preferencesManager.setBooleanValue(AppConstant.PREF_NOTIFICATION_ARRIVED, false);
         badgeDrawerToggle.setBadgeEnabled(false);
-       // notificationActionCount.setText("");
+        // notificationActionCount.setText("");
         notificationCountTv.setText("");
     }
 
@@ -754,7 +753,6 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         navBusDetailLayout.setBackgroundColor(getResources().getColor(R.color.white));
         navSettingLayout.setBackgroundColor(getResources().getColor(R.color.white));
         navLogoutLayout.setBackgroundColor(getResources().getColor(R.color.white));
-
 
 
         if (is_drive_started && start_btn_activated) {
@@ -878,7 +876,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             return true;
         }
 
-        if(badgeDrawerToggle.onOptionsItemSelected(item)) {
+        if (badgeDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
@@ -1091,9 +1089,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         }
         tripDepartTv.setText(": " + logDetail.getDepartTime());
         tripArrivalTv.setText(": " + logDetail.getArrivedTime());
-        if(logDetail.getBusStopsCovered().length()>0){
+        if (logDetail.getBusStopsCovered().length() > 0) {
             busStopsListTv.setText(": " + logDetail.getBusStopsCovered());
-        }else {
+        } else {
             busStopsListTv.setText(": " + " --");
         }
         if (logDetail.getTripCompleted().equalsIgnoreCase("1")) {
@@ -1360,6 +1358,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
                 DBHelper.init(BusStatusActivity.this);
                 DBHelper.deleteGeofenceShopsTable();
+                DBHelper.deleteRoutePointsTable();
 
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BusStops busStops = snapshot.getValue(BusStops.class);
@@ -1507,11 +1506,10 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             m.setTag(busStops);
         }
 
-      /*  //Draw the route.
-        String path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
-        if (path.length() > 1) {
-            redrawLine(path);
-        }*/
+        //Draw the route.
+        if (busStopsArrayList != null) {
+            drawRoute();
+        }
 
     }
 
@@ -1552,9 +1550,9 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             LatLng bus_location = new LatLng(location.getLatitude(), location.getLongitude());
             String path = preferencesManager.getStringValue(AppConstant.PREF_BUS_PATH);
 
-            if (path.length() > 1) {
+            /*if (path.length() > 1) {
                 redrawLine(path);
-            }
+            }*/
 
             if (busMarker != null) {
                 if (is_track_enabled && !isBusArrivalTimeUpdated) {
@@ -1736,6 +1734,32 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
 
     }
 
+    private void drawRoute() {
+
+        if (!isRouteDrawn) {  // if the app is realunched
+            isRouteDrawn = true;
+
+            DBHelper.init(BusStatusActivity.this);
+            if(DBHelper.isRoutePointsAvailable()){
+                DrawRouteMap drawRouteMap = new DrawRouteMap(BusStatusActivity.this);
+                drawRouteMap.execute();
+                Log.d("Route Map", "Route is drawn from db");
+            }else {
+                // Getting URL to the Google Directions API
+                String url = getDirectionsUrl();
+                Log.d("Route Map", "Route is drawn from url" + url);
+                DownloadTask downloadTask = new DownloadTask(this);
+                // Start downloading json data from Google Directions API
+                downloadTask.execute(url);
+            }
+
+
+        }
+
+
+    }
+
+
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -1778,18 +1802,18 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             startActivity(settingsIntent);
 
         } else if (id == R.id.nav_logout) {
-            if(preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)){
+            if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
                 MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme);
                 materialAlertDialogBuilder.setTitle("Please complete the trip.");
                 materialAlertDialogBuilder.setCancelable(false);
                 materialAlertDialogBuilder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                       dialog.dismiss();
+                        dialog.dismiss();
                     }
                 });
                 materialAlertDialogBuilder.show();
-            }else {
+            } else {
                 logout();
             }
 
@@ -1830,7 +1854,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             startActivity(settingsIntent);
 
         } else if (id == R.id.navLogoutLayout) {
-            if(preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)){
+            if (preferencesManager.getBooleanValue(AppConstant.PREF_IS_DRIVING)) {
                 MaterialAlertDialogBuilder materialAlertDialogBuilder = new MaterialAlertDialogBuilder(this, R.style.AlertDialogTheme);
                 materialAlertDialogBuilder.setTitle("Please complete the trip.");
                 materialAlertDialogBuilder.setCancelable(false);
@@ -1841,7 +1865,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                     }
                 });
                 materialAlertDialogBuilder.show();
-            }else {
+            } else {
                 logout();
             }
 
@@ -1892,6 +1916,7 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             // clear the table
             DBHelper.init(BusStatusActivity.this);
             DBHelper.deleteGeofenceShopsTable();
+            DBHelper.deleteRoutePointsTable();
 
             // update loggedin false.
             String driverKey = preferencesManager.getStringValue(AppConstant.PREF_DRIVER_KEY);
@@ -1930,14 +1955,21 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
         }
     }
 
-    private class DrawLineAsyncTask extends AsyncTask<String, Void, PolylineOptions> {
+    @Override
+    public void onTaskDone(PolylineOptions polylineOptions) {
+        if(polylineOptions!=null){
+            mMap.addPolyline(polylineOptions);
+        }
+    }
+
+    private class DrawLineAsyncTask1 extends AsyncTask<String, Void, PolylineOptions> {
 
         @Override
         protected PolylineOptions doInBackground(String... strings) {
 
             PolylineOptions options = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
 
-            String path = strings[0];
+           /* String path = strings[0];
             String[] points = path.split(":");
 
             if (points.length > 2) {
@@ -1949,6 +1981,12 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
                 }
 
             }
+*/
+            for (int i = 0; i < busStopsArrayList.size(); i++) {
+                BusStops busStops = busStopsArrayList.get(i);
+                LatLng point = new LatLng(Double.parseDouble(busStops.getLatitude()), Double.parseDouble(busStops.getLongitude()));
+                options.add(point);
+            }
 
             return options;
         }
@@ -1958,7 +1996,76 @@ public class BusStatusActivity extends AppCompatActivity implements OnMapReadyCa
             super.onPostExecute(polylineOptions);
             mMap.addPolyline(polylineOptions); //add Polyline
         }
+
     }
+
+    private String getDirectionsUrl(){
+
+        // Origin of route
+        String str_origin = "";
+
+        // Destination of route
+        String str_dest = "";
+
+        // Sensor enabled
+        String sensor = "sensor=false";
+
+        // Waypoints
+        String waypoints = "";
+        //if (drive_direction.equalsIgnoreCase("-1")) {
+
+            int list_size = busStopsArrayList.size();
+
+            // Origin of route
+             str_origin = "origin="+busStopsArrayList.get(0).getLatitude()+","+busStopsArrayList.get(0).getLongitude();
+
+            // Destination of route
+             str_dest = "destination="+busStopsArrayList.get(list_size-1).getLatitude()+","+busStopsArrayList.get(list_size-1).getLongitude();
+
+            for(int i=1;i<busStopsArrayList.size()-1;i++){
+                BusStops busStops =busStopsArrayList.get(i);
+                 if(i==1)
+                    waypoints = "waypoints=optimize:true";
+                waypoints += "|" +busStops.getLatitude() + "," + busStops.getLongitude() ;
+            }
+        //}
+
+        // Building the parameters to the web service
+        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+waypoints+"&key="+getResources().getString(R.string.api_key);
+
+        // Output format
+        String output = "json";
+
+        // Building the url to the web service
+        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+
+        return url;
+    }
+
+
+    private class DrawLineAsyncTask extends AsyncTask<String, Void, PolylineOptions> {
+
+        @Override
+        protected PolylineOptions doInBackground(String... strings) {
+
+            PolylineOptions options = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
+            for (int i = 0; i < busStopsArrayList.size(); i++) {
+                BusStops busStops = busStopsArrayList.get(i);
+                LatLng point = new LatLng(Double.parseDouble(busStops.getLatitude()), Double.parseDouble(busStops.getLongitude()));
+                options.add(point);
+            }
+
+            return options;
+        }
+
+        @Override
+        protected void onPostExecute(PolylineOptions polylineOptions) {
+            super.onPostExecute(polylineOptions);
+            mMap.addPolyline(polylineOptions); //add Polyline
+        }
+
+    }
+
 
     @Override
     protected void onDestroy() {

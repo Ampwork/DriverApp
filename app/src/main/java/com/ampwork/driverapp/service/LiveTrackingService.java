@@ -314,6 +314,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
 
         /*Find the Bus next BusStop*/
         if (!preferencesManager.getBooleanValue(AppConstant.PREF_CHECK_NEARBY_STUDENTS)) {
+            int current_stop_order = Integer.parseInt(preferencesManager.getStringValue(AppConstant.PREF_NEXT_STOP_ORDER));
             int next_stop_order = -1;
             String busStopsCovered = preferencesManager.getStringValue(AppConstant.PREF_BUS_STOPS_COVERED);
             BusStops busStops = null;
@@ -321,7 +322,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
             Log.d(TAG, " bus stop array list" + busStopsArrayList.size() + " last stop " + dest_stop_order);
 
             if (direction.equalsIgnoreCase("-1")) {
-                for (int i = 0; i <= busStopsArrayList.size() - 1; i++) {
+                for (int i = current_stop_order/*0*/; i <= busStopsArrayList.size() - 1; i++) {
                     busStops = busStopsArrayList.get(i);
                     Location nextStopLoc = AppUtility.strToLocation(busStops.getLatitude() + "," + busStops.getLongitude());
                     float distance = location.distanceTo(nextStopLoc);
@@ -333,7 +334,7 @@ public class LiveTrackingService extends Service implements ArrivalTimeCallBack 
                 }
 
             } else {
-                for (int j = busStopsArrayList.size() - 1; j >= 0; j--) {
+                for (int j =current_stop_order /*busStopsArrayList.size() - 1*/; j >= 0; j--) {
                     busStops = busStopsArrayList.get(j);
                     Location nextStopLoc = AppUtility.strToLocation(busStops.getLatitude() + "," + busStops.getLongitude());
                     float distance = location.distanceTo(nextStopLoc);

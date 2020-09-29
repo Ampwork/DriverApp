@@ -362,6 +362,7 @@ public class TripDetaiActivity extends AppCompatActivity implements Connectivity
                 // clear the table
                 DBHelper.init(TripDetaiActivity.this);
                 DBHelper.deleteGeofenceShopsTable();
+                DBHelper.deleteRoutePointsTable();
                 String bus_stops_list = "";
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     BusStops busStops = snapshot.getValue(BusStops.class);

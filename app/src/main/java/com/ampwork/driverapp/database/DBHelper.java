@@ -9,8 +9,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusStops;
 import com.ampwork.driverapp.model.Notification;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -52,6 +56,10 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String BUS_STOPS_COVERED = "busStopsCovered";
 
 
+    //Route table will store all lat,lng points of route , which helps in drawing routemap using google direction api.
+    private static final String TABLE_ROUTE_TB = "routetb";
+    private static final String ROUTE_PATH = "routepath";
+
 
     public static void init(Context ctx) {
         if (instance == null) {
@@ -84,12 +92,14 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(getTableGeofenceStopsTable());
         db.execSQL(getBusLogsTable());
+        db.execSQL(getRoutePointsTable());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_STOPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_LOGS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTE_TB);
     }
 
     private String getTableGeofenceStopsTable() {
@@ -124,9 +134,88 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    private String getRoutePointsTable() {
+        return "CREATE TABLE IF NOT EXISTS " + TABLE_ROUTE_TB + " ( "
+                + ROUTE_PATH + " TEXT )";
+
+    }
+
+    /*RoutePoints Data*/
+    public static void addRoutePoints(String path) {
+
+        SQLiteDatabase db = getDatabase();
+        ContentValues cv = new ContentValues();
+
+        cv.put(ROUTE_PATH, path);
+
+        db.insert(TABLE_ROUTE_TB, null, cv);
+
+    }
+
+    public static void deleteRoutePointsTable() {
+        SQLiteDatabase db = getDatabase();
+        db.delete(TABLE_ROUTE_TB, null, null);
+
+    }
+
+    public static PolylineOptions getAllRoutePoints() {
+
+        List<List<HashMap<String, String>>> routes = null;
+        PolylineOptions lineOptions = null;
+
+        SQLiteDatabase db = getDatabase();
+        Cursor cursor = db.query(TABLE_ROUTE_TB, null, null, null, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+
+                String path = cursor.getString(cursor.getColumnIndex(ROUTE_PATH));
+                String[] latLngList = path.split(":");
+                ArrayList<LatLng> points = new ArrayList<LatLng>();
+
+                for (String latLng : latLngList) {
+
+                    String[] point = latLng.split(",");
+                    double lat = Double.parseDouble(point[0]);
+                    double lng = Double.parseDouble(point[1]);
+                    LatLng position = new LatLng(lat, lng);
+
+                    points.add(position);
+                }
+                ;
+
+                lineOptions.addAll(points);
+
+            } while (cursor.moveToNext());
+
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        return lineOptions;
+    }
+
+
+    public static boolean isRoutePointsAvailable() {
+
+        List<List<HashMap<String, String>>> routes = null;
+        PolylineOptions lineOptions = null;
+
+        SQLiteDatabase db = getDatabase();
+        Cursor cursor = db.query(TABLE_ROUTE_TB, null, null, null, null, null, null);
+
+
+        if (cursor != null && cursor.getCount()>0) {
+            cursor.close();
+            return true;
+        }
+        return false;
+    }
+
 
     /*BusStops Data*/
-    public static void addStops(BusStops busStops){
+    public static void addStops(BusStops busStops) {
 
         SQLiteDatabase db = getDatabase();
         ContentValues cv = new ContentValues();
@@ -161,7 +250,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.delete(TABLE_BUS_STOPS, null, null);
     }
 
-    public static ArrayList<BusStops> getAllBusStops(){
+    public static ArrayList<BusStops> getAllBusStops() {
 
         ArrayList<BusStops> busStopsArrayList = new ArrayList<BusStops>();
 
@@ -229,7 +318,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     /*BusLogs*/
-    public static void addBusLog(BusLog busLog){
+    public static void addBusLog(BusLog busLog) {
 
         SQLiteDatabase db = getDatabase();
         ContentValues cv = new ContentValues();
@@ -251,7 +340,6 @@ public class DBHelper extends SQLiteOpenHelper {
         cv.put(BUS_STOPS_COVERED, busLog.getBusStopsCovered());
 
 
-
         cr = getDatabase().query(TABLE_BUS_LOGS, null, BUS_ARRIVED_TIME + " = ?", new String[]{busLog.getArrivedTime()}, null, null, null);
 
         if (null != cr && cr.moveToFirst()) {
@@ -271,7 +359,7 @@ public class DBHelper extends SQLiteOpenHelper {
         db.delete(TABLE_BUS_LOGS, BUS_ARRIVED_TIME + " = ?", new String[]{id});
     }
 
-    public static ArrayList<BusLog> getAllBuslogs(){
+    public static ArrayList<BusLog> getAllBuslogs() {
 
         ArrayList<BusLog> busLogArrayList = new ArrayList<BusLog>();
 
@@ -315,8 +403,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
 
-   /*
-    *//*Notification Data*//*
+    /*
+     *//*Notification Data*//*
 
 
       private String getNotificationTable(){

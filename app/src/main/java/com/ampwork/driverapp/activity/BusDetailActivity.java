@@ -145,6 +145,7 @@ public class BusDetailActivity extends AppCompatActivity {
                         // clear the table
                         DBHelper.init(BusDetailActivity.this);
                         DBHelper.deleteGeofenceShopsTable();
+                        DBHelper.deleteRoutePointsTable();
                         String bus_stops_list = "";
                         for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                             BusStops busStops = snapshot.getValue(BusStops.class);
