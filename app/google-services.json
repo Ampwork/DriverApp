@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "736391005574-vuu4jeeb8puukmm6pv7c70qhnj3cvhk0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ampwork.driverapp",
+            "certificate_hash": "e4831fdbcba438f659b44e910a41e1a1d2f6b1db"
+          }
+        },
+        {
           "client_id": "736391005574-ueiqo1slgb90evg0ung086i75t74oh00.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -27,6 +35,43 @@
           "client_type": 1,
           "android_info": {
             "package_name": "com.ampwork.driverapp",
+            "certificate_hash": "9609408fcf0c00e6efed5f48279d8305c5b3325b"
+          }
+        },
+        {
+          "client_id": "736391005574-v34vlc1ed6q8nbb1fp78e2sk3mbrohl5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1lWnHhH1JcvkIIsx_JLYnrlnDdWIW_Jc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "736391005574-v34vlc1ed6q8nbb1fp78e2sk3mbrohl5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:736391005574:android:7ceb1c318f70b788",
+        "android_client_info": {
+          "package_name": "com.ampwork.studentsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "736391005574-u77mm60u173k5pnotnbnoq34ic7lu7lm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ampwork.studentsapp",
             "certificate_hash": "9609408fcf0c00e6efed5f48279d8305c5b3325b"
           }
         },

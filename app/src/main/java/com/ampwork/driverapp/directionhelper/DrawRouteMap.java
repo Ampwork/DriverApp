@@ -10,22 +10,23 @@ public class DrawRouteMap extends AsyncTask<Void,Void, PolylineOptions> {
     PolylineOptions lineOptions = null;
     Context mContext;
     DirectionApiCallBack directionApiCallBack;
+    String bus_direction;
 
-    public DrawRouteMap(Context mContext) {
+    public DrawRouteMap(Context mContext, String bus_direction) {
         this.mContext = mContext;
         this.directionApiCallBack = (DirectionApiCallBack) mContext;
+        this.bus_direction=bus_direction;
     }
 
     @Override
     protected PolylineOptions doInBackground(Void... voids) {
         DBHelper.init(mContext);
-        lineOptions = DBHelper.getAllRoutePoints();
+        lineOptions = DBHelper.getAllRoutePoints(bus_direction);
         return lineOptions;
     }
 
     @Override
     protected void onPostExecute(PolylineOptions polylineOptions) {
-        super.onPostExecute(polylineOptions);
         if (lineOptions != null) {
             directionApiCallBack.onTaskDone(lineOptions);
             //  directionApiCallBack.addPolyline(lineOptions);

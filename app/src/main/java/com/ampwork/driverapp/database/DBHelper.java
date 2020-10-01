@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.graphics.Color;
 
 import com.ampwork.driverapp.model.BusLog;
 import com.ampwork.driverapp.model.BusStops;
@@ -57,7 +58,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
 
     //Route table will store all lat,lng points of route , which helps in drawing routemap using google direction api.
-    private static final String TABLE_ROUTE_TB = "routetb";
+    private static final String TABLE_PICKUP_ROUTE_TB = "pickuproutetb";
+    private static final String TABLE_DROP_ROUTE_TB = "droproutetb";
     private static final String ROUTE_PATH = "routepath";
 
 
@@ -92,14 +94,16 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(getTableGeofenceStopsTable());
         db.execSQL(getBusLogsTable());
-        db.execSQL(getRoutePointsTable());
+        db.execSQL(getPickupRouteTable());
+        db.execSQL(getDropRouteTable());
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_STOPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_BUS_LOGS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ROUTE_TB);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PICKUP_ROUTE_TB);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DROP_ROUTE_TB);
     }
 
     private String getTableGeofenceStopsTable() {
@@ -134,44 +138,59 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    private String getRoutePointsTable() {
-        return "CREATE TABLE IF NOT EXISTS " + TABLE_ROUTE_TB + " ( "
+    private String getPickupRouteTable() {
+        return "CREATE TABLE IF NOT EXISTS " + TABLE_PICKUP_ROUTE_TB + " ( "
+                + ROUTE_PATH + " TEXT )";
+
+    }
+
+    private String getDropRouteTable() {
+        return "CREATE TABLE IF NOT EXISTS " + TABLE_DROP_ROUTE_TB + " ( "
                 + ROUTE_PATH + " TEXT )";
 
     }
 
     /*RoutePoints Data*/
-    public static void addRoutePoints(String path) {
+    public static void addRoutePoints(String path, String direction) {
 
         SQLiteDatabase db = getDatabase();
         ContentValues cv = new ContentValues();
 
         cv.put(ROUTE_PATH, path);
-
-        db.insert(TABLE_ROUTE_TB, null, cv);
+        if (direction.equalsIgnoreCase("1")) {
+            db.insert(TABLE_PICKUP_ROUTE_TB, null, cv);
+        } else {
+            db.insert(TABLE_DROP_ROUTE_TB, null, cv);
+        }
 
     }
 
     public static void deleteRoutePointsTable() {
         SQLiteDatabase db = getDatabase();
-        db.delete(TABLE_ROUTE_TB, null, null);
+        db.delete(TABLE_PICKUP_ROUTE_TB, null, null);
+        db.delete(TABLE_DROP_ROUTE_TB, null, null);
 
     }
 
-    public static PolylineOptions getAllRoutePoints() {
+    public static PolylineOptions getAllRoutePoints(String direction) {
 
         List<List<HashMap<String, String>>> routes = null;
         PolylineOptions lineOptions = null;
+        Cursor cursor = null;
 
         SQLiteDatabase db = getDatabase();
-        Cursor cursor = db.query(TABLE_ROUTE_TB, null, null, null, null, null, null);
-
+        if (direction.equalsIgnoreCase("1")) {
+            cursor = db.query(TABLE_PICKUP_ROUTE_TB, null, null, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_DROP_ROUTE_TB, null, null, null, null, null, null);
+        }
         if (cursor != null && cursor.moveToFirst()) {
             do {
 
                 String path = cursor.getString(cursor.getColumnIndex(ROUTE_PATH));
                 String[] latLngList = path.split(":");
                 ArrayList<LatLng> points = new ArrayList<LatLng>();
+                lineOptions = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
 
                 for (String latLng : latLngList) {
 
@@ -182,7 +201,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
                     points.add(position);
                 }
-                ;
 
                 lineOptions.addAll(points);
 
@@ -197,16 +215,21 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public static boolean isRoutePointsAvailable() {
+    public static boolean isRoutePointsAvailable(String direction) {
 
         List<List<HashMap<String, String>>> routes = null;
         PolylineOptions lineOptions = null;
 
         SQLiteDatabase db = getDatabase();
-        Cursor cursor = db.query(TABLE_ROUTE_TB, null, null, null, null, null, null);
+        Cursor cursor = null;
+        if(direction.equalsIgnoreCase("1"))
+        {
+           cursor = db.query(TABLE_PICKUP_ROUTE_TB, null, null, null, null, null, null);
+        } else {
+            cursor = db.query(TABLE_DROP_ROUTE_TB, null, null, null, null, null, null);
+        }
 
-
-        if (cursor != null && cursor.getCount()>0) {
+        if (cursor != null && cursor.getCount() > 0) {
             cursor.close();
             return true;
         }

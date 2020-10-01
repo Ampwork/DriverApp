@@ -105,7 +105,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class BusStatusActivity extends AppCompatActivity implements DirectionApiCallBack,OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
+public class BusStatusActivity extends AppCompatActivity implements DirectionApiCallBack, OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener, ConnectivityReceiver.ConnectivityReceiverListener {
 
     private TextView navHeaderTitleTv, navHeaderSubTitleTv, navHeaderSubTitle2Tv, busDistanceTv, speedTV, nextStopTv, timerTV;
     private Button startBtn, stopBtn;
@@ -230,15 +230,12 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
             @Override
             public void onClick(View view) {
 
-                // if (ConnectivityReceiver.isConnected()) {
-
                 LiveBusDetail liveBusDetail = new LiveBusDetail();
                 liveBusDetail.setRouteName(preferencesManager.getStringValue(AppConstant.PREF_ROUTE_NAME));
                 liveBusDetail.setBusName(preferencesManager.getStringValue(AppConstant.PREF_BUS_NAME));
                 liveBusDetail.setBusNumber(preferencesManager.getStringValue(AppConstant.PREF_BUS_NUMBER));
-
                 startTrip(liveBusDetail);
-                // }
+
             }
         });
 
@@ -1508,7 +1505,7 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
 
         //Draw the route.
         if (busStopsArrayList != null) {
-            drawRoute();
+            drawRoute(bus_direction);
         }
 
     }
@@ -1734,21 +1731,22 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
 
     }
 
-    private void drawRoute() {
+    private void drawRoute(String bus_direction) {
 
         if (!isRouteDrawn) {  // if the app is realunched
             isRouteDrawn = true;
 
             DBHelper.init(BusStatusActivity.this);
-            if(DBHelper.isRoutePointsAvailable()){
-                DrawRouteMap drawRouteMap = new DrawRouteMap(BusStatusActivity.this);
+            if (DBHelper.isRoutePointsAvailable(bus_direction))// bus-direction indicates trip type, whether it is pickup(1) or drop(-1).
+            {
+                DrawRouteMap drawRouteMap = new DrawRouteMap(BusStatusActivity.this, bus_direction);
                 drawRouteMap.execute();
                 Log.d("Route Map", "Route is drawn from db");
-            }else {
+            } else {
                 // Getting URL to the Google Directions API
-                String url = getDirectionsUrl();
+                String url = getDirectionsUrl(bus_direction);
                 Log.d("Route Map", "Route is drawn from url" + url);
-                DownloadTask downloadTask = new DownloadTask(this);
+                DownloadTask downloadTask = new DownloadTask(this, bus_direction);
                 // Start downloading json data from Google Directions API
                 downloadTask.execute(url);
             }
@@ -1957,10 +1955,25 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
 
     @Override
     public void onTaskDone(PolylineOptions polylineOptions) {
-        if(polylineOptions!=null){
-            mMap.addPolyline(polylineOptions);
+        if (polylineOptions != null) {
+            PolylineOptions lineOptions = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
+            BusStops origin = new BusStops(),destination = new BusStops();
+            if (drive_direction.equalsIgnoreCase("1")) {
+                 origin = busStopsArrayList.get(busStopsArrayList.size() - 1);
+                 destination = busStopsArrayList.get(0);
+            } else {
+                 origin = busStopsArrayList.get(0);
+                 destination = busStopsArrayList.get(busStopsArrayList.size() - 1);
+            }
+            lineOptions.add(new LatLng(Double.parseDouble(origin.latitude), Double.parseDouble(origin.longitude)));
+            lineOptions.addAll(polylineOptions.getPoints());
+            lineOptions.add(new LatLng(Double.parseDouble(destination.latitude), Double.parseDouble(destination.longitude)));
+
+            mMap.addPolyline(lineOptions);
         }
     }
+
+
 
     private class DrawLineAsyncTask1 extends AsyncTask<String, Void, PolylineOptions> {
 
@@ -1999,7 +2012,7 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
 
     }
 
-    private String getDirectionsUrl(){
+    private String getDirectionsUrl(String bus_direction) {
 
         // Origin of route
         String str_origin = "";
@@ -2014,30 +2027,45 @@ public class BusStatusActivity extends AppCompatActivity implements DirectionApi
         String waypoints = "";
         //if (drive_direction.equalsIgnoreCase("-1")) {
 
-            int list_size = busStopsArrayList.size();
+        int list_size = busStopsArrayList.size();
 
+        if (bus_direction.equalsIgnoreCase("1")) {
             // Origin of route
-             str_origin = "origin="+busStopsArrayList.get(0).getLatitude()+","+busStopsArrayList.get(0).getLongitude();
+            str_origin = "origin=" + busStopsArrayList.get(list_size - 1).getLatitude() + "," + busStopsArrayList.get(list_size - 1).getLongitude();
 
             // Destination of route
-             str_dest = "destination="+busStopsArrayList.get(list_size-1).getLatitude()+","+busStopsArrayList.get(list_size-1).getLongitude();
+            str_dest = "destination=" + busStopsArrayList.get(0).getLatitude() + "," + busStopsArrayList.get(0).getLongitude();
 
-            for(int i=1;i<busStopsArrayList.size()-1;i++){
-                BusStops busStops =busStopsArrayList.get(i);
-                 if(i==1)
+            for (int i = busStopsArrayList.size() - 1; i > 0; i--) {
+                BusStops busStops = busStopsArrayList.get(i);
+                if (i == busStopsArrayList.size() - 1)
                     waypoints = "waypoints=optimize:true";
-                waypoints += "|" +busStops.getLatitude() + "," + busStops.getLongitude() ;
+                waypoints += "|" + busStops.getLatitude() + "," + busStops.getLongitude();
             }
-        //}
+
+        } else {
+            // Origin of route
+            str_origin = "origin=" + busStopsArrayList.get(0).getLatitude() + "," + busStopsArrayList.get(0).getLongitude();
+
+            // Destination of route
+            str_dest = "destination=" + busStopsArrayList.get(list_size - 1).getLatitude() + "," + busStopsArrayList.get(list_size - 1).getLongitude();
+
+            for (int i = 1; i < busStopsArrayList.size() - 1; i++) {
+                BusStops busStops = busStopsArrayList.get(i);
+                if (i == 1)
+                    waypoints = "waypoints=optimize:true";
+                waypoints += "|" + busStops.getLatitude() + "," + busStops.getLongitude();
+            }
+        }
 
         // Building the parameters to the web service
-        String parameters = str_origin+"&"+str_dest+"&"+sensor+"&"+waypoints+"&key="+getResources().getString(R.string.api_key);
+        String parameters = str_origin + "&" + str_dest + "&" + sensor + "&" + waypoints + "&key=" + getResources().getString(R.string.api_key);
 
         // Output format
         String output = "json";
 
         // Building the url to the web service
-        String url = "https://maps.googleapis.com/maps/api/directions/"+output+"?"+parameters;
+        String url = "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
 
         return url;
     }

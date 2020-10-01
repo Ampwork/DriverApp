@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- Required if your app targets Android 10 (API level 29) or higher -->
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"

@@ -18,11 +18,13 @@ public class DownloadTask extends AsyncTask<String, Void, String> {
 
     Context mContext;
     DirectionApiCallBack directionApiCallBack;
+    String bus_direction;
 
 
-    public DownloadTask(Context context) {
-        this.mContext= context;
-            this.directionApiCallBack = (DirectionApiCallBack) context;
+    public DownloadTask(Context context, String bus_direction) {
+        this.mContext = context;
+        this.directionApiCallBack = (DirectionApiCallBack) context;
+        this.bus_direction = bus_direction;
     }
 
     // Downloading data in non-ui thread
@@ -47,7 +49,7 @@ public class DownloadTask extends AsyncTask<String, Void, String> {
     protected void onPostExecute(String result) {
         super.onPostExecute(result);
 
-        ParserTask parserTask = new ParserTask(directionApiCallBack,mContext);
+        ParserTask parserTask = new ParserTask(directionApiCallBack, mContext,bus_direction);
 
         // Invokes the thread for parsing the JSON data
         parserTask.execute(result);

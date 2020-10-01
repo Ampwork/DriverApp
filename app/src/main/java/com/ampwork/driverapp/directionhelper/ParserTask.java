@@ -21,11 +21,13 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
     //GoogleMap directionApiCallBack;
     DirectionApiCallBack directionApiCallBack;
     Context context;
+    String bus_direction;
 
 
-    public ParserTask(DirectionApiCallBack directionApiCallBack, Context context) {
+    public ParserTask(DirectionApiCallBack directionApiCallBack, Context context, String bus_direction) {
         this.directionApiCallBack = directionApiCallBack;
         this.context = context;
+        this.bus_direction=bus_direction;
     }
 
     // Parsing the data in non-ui thread
@@ -58,7 +60,7 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
         // Traversing through all the routes
         for (int i = 0; i < result.size(); i++) {
             points = new ArrayList<LatLng>();
-            lineOptions = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
+           lineOptions = new PolylineOptions().width(10).color(Color.BLACK).geodesic(true);
             DBHelper.init(context);
 
             // Fetching i-th route
@@ -76,14 +78,14 @@ public class ParserTask extends AsyncTask<String, Integer, List<List<HashMap<Str
                 if (j > 0) {
                     str_path = str_path + ":";
                 }
-                str_path = str_path + point.get("lat") + point.get("lat");
+                str_path = str_path + point.get("lat") +","+ point.get("lng");
 
             }
 
             // Adding all the points in the route to LineOptions
             lineOptions.addAll(points);
             //Add path into db.
-            DBHelper.addRoutePoints(str_path);
+            DBHelper.addRoutePoints(str_path,bus_direction);
         }
 
         if (lineOptions != null) {
